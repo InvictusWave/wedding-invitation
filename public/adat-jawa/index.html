@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Wedding of Ammar &amp; Yulia</title>
+<meta name="description" content="Undangan pernikahan Ammar & Yulia — Minggu, 1 November 2026">
+<!-- Preview WhatsApp/sosmed: ganti https://undangan-anda.com dengan domain final -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Undangan Pernikahan">
+<meta property="og:title" content="The Wedding of Ammar & Yulia">
+<meta property="og:description" content="Undangan pernikahan Ammar & Yulia — Minggu, 1 November 2026. Tanpa mengurangi rasa hormat, kami mengundang Anda untuk hadir.">
+<meta property="og:url" content="https://undangan-anda.com/adat-jawa/">
+<meta property="og:image" content="https://undangan-anda.com/adat-jawa/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#4a3424">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/base.css">
+<style>
+:root{--page:#2b2018;--bg:#f6ede4;--ink:#4a3424;--accent:#8a6234;--on-accent:#fff8ef;--card:rgba(255,250,244,.82)}
+.inv{background:#f6ede4 url(img/JAWA-BACKGROUND.webp) center top/100% auto}
+.veil{background:linear-gradient(rgba(246,237,228,.9),rgba(246,237,228,.82))}
+.motif-top,.motif-bot{position:absolute;left:0;width:100%;z-index:0;opacity:.55;pointer-events:none}
+.motif-top{top:0}.motif-bot{bottom:0}
+
+/* cover */
+.cover{background:#f6ede4;color:#4a3424}
+.cover .bgx{opacity:.55}
+.cover::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(246,237,228,.95),rgba(246,237,228,.4) 70%)}
+.cover>*{z-index:1}
+.cover .gunungan{width:150px;margin-bottom:10px}
+.cover .names{font-size:58px;color:var(--accent)}
+
+/* opening with motion video */
+#opening{color:#fff8ef;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
+#opening::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(rgba(60,38,20,.2),rgba(60,38,20,.35) 45%,rgba(60,38,20,.8))}
+#opening>:not(.bgx){z-index:2}
+#opening .h-script{color:#f5d9a8;font-size:56px}
+#opening .gunungan{width:190px;margin:22px 0}
+
+.pic{position:relative;width:292px;height:361px;margin:0 auto 8px;background:no-repeat 3% 14%/60% auto}
+.pic.r{background-position:97% 14%}
+.pic .photo{display:block;width:165px;height:304px;margin:0 auto;object-fit:cover;object-position:center 30%;border:2px solid #d7bb83;border-radius:999px;box-shadow:5px 5px 5px rgba(0,0,0,.3)}
+.pic .fl{position:absolute;top:174px;width:130px;transform-origin:50% 100%}
+.couple .script{font-size:44px;color:var(--accent)}
+.amp{font-size:70px;color:var(--accent);margin:8px 0}
+.ig{font-size:13px;text-decoration:none;display:inline-block;margin-top:8px;padding:6px 14px;border-radius:999px;border:1px solid var(--accent);color:var(--accent)}
+
+.event h3{font:600 20px var(--f-caps,'Cinzel');letter-spacing:.1em;color:var(--accent);margin-bottom:8px}
+.event .date{font-size:20px;font-weight:600}
+.map{width:100%;height:220px;border:0;border-radius:16px;margin-top:16px}
+
+#closing{aspect-ratio:1212/2160;padding:50% 25% 0;color:#fff8ef;display:flex;flex-direction:column;align-items:center}
+#closing p{font-size:13px;line-height:1.45}
+#closing .h-script{color:#f5d9a8;font-size:38px}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <img class="bgx" src="img/JAWA-BACKGROUND.webp" alt="">
+  <img class="gunungan floaty" src="img/JAWA-GUNUNGAN.webp" alt="">
+  <p class="caps" style="font-size:13px">The Wedding of</p>
+  <h1 class="script names">Ammar &amp; Yulia</h1>
+  <p>Minggu, 1 November 2026</p>
+  <div class="guest">
+    <span class="muted">Kepada Yth. Bapak/Ibu/Saudara/i</span>
+    <b data-guest>Nama Tamu</b>
+  </div>
+  <button id="btn-open" class="btn">✉ Buka Undangan</button>
+</div>
+
+<main class="inv">
+
+  <!-- OPENING -->
+  <section id="opening">
+    <video class="bgx" src="img/motion.mp4" poster="img/JAWA-FALLBACK.webp" muted loop playsinline preload="none" data-play-on-open></video>
+    <p class="caps rv focus" style="font-size:13px">Assalamu'alaikum Wr. Wb.</p>
+    <img loading="lazy" decoding="async" class="gunungan rv z" data-px="-0.25" src="img/JAWA-GUNUNGAN.webp" alt="">
+    <h2 class="h-script rv write">We are Getting Married!</h2>
+    <p class="rv" style="max-width:340px">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.</p>
+  </section>
+
+  <!-- COUPLE -->
+  <section class="couple veil">
+    <img loading="lazy" decoding="async" class="motif-top" data-px="0.12" src="img/JAWA-MOTIF-ATAS.png" alt="">
+    <h2 class="h-script rv write">Mempelai</h2>
+    <div class="rv l" style="margin-top:28px">
+      <div class="pic" style="background-image:url(img/JAWA-COUPLE-1.webp)">
+        <img loading="lazy" decoding="async" class="photo rv iris" src="../assets/foto/pria.webp" alt="Ammar Abdillah Hasan">
+        <img loading="lazy" decoding="async" class="fl sway" src="img/JAWA-COUPLE-2.webp" alt="" style="right:6px">
+      </div>
+      <h3 class="script">Ammar Abdillah Hasan</h3>
+      <p class="muted">Putra pertama dari<br>Bapak Sunaryo &amp; Ibu Supraptiningsih</p>
+    </div>
+    <p class="script amp rv z">&amp;</p>
+    <div class="rv r">
+      <div class="pic r" style="background-image:url(img/JAWA-COUPLE-3.webp)">
+        <img loading="lazy" decoding="async" class="photo rv iris" src="../assets/foto/wanita.webp" alt="Yulia Ike Rachmawati">
+        <img loading="lazy" decoding="async" class="fl sway" src="img/JAWA-COUPLE-4.webp" alt="" style="left:6px">
+      </div>
+      <h3 class="script">Yulia Ike Rachmawati</h3>
+      <p class="muted">Putri pertama dari<br>Bapak Tri Hastanto &amp; Ibu Budi Sayekti</p>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="veil">
+    <img loading="lazy" decoding="async" class="breathe" data-px="-0.3" src="img/JAWA-GUNUNGAN.webp" alt="" style="width:110px;margin:0 auto 18px;opacity:.9">
+    <blockquote class="card rv focus">
+      <p><i>“Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang.”</i></p>
+      <p class="caps" style="margin-top:12px;font-size:13px;color:var(--accent)">QS. Ar-Rum : 21</p>
+    </blockquote>
+  </section>
+
+  <!-- EVENT -->
+  <section class="event veil">
+    <img loading="lazy" decoding="async" class="motif-top" data-px="0.12" src="img/JAWA-MOTIF-ATAS.png" alt="">
+    <h2 class="h-script rv write">Save The Date</h2>
+    <div class="count rv stagger" data-countdown="2026-10-31T08:00:00+07:00">
+      <div><b data-d>00</b><small>Hari</small></div>
+      <div><b data-h>00</b><small>Jam</small></div>
+      <div><b data-m>00</b><small>Menit</small></div>
+      <div><b data-s>00</b><small>Detik</small></div>
+    </div>
+    <div class="card rv flip">
+      <h3>Akad Nikah</h3>
+      <p class="date">Sabtu, 31 Oktober 2026</p>
+      <p>08.00 WIB</p>
+      <p style="margin-top:8px">Masjid Abdurrahman bin Auf, SAMIRA</p>
+      <p style="margin-top:14px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px"><a class="btn" href="https://maps.google.com/?q=Masjid+Abdurrahman+bin+Auf+SAMIRA" target="_blank" rel="noopener">📍 Lihat Lokasi</a> <a class="btn ghost" data-cal="Akad Nikah Ammar &amp; Yulia" data-start="2026-10-31T08:00+07:00" data-end="2026-10-31T10:00+07:00" data-loc="Masjid Abdurrahman bin Auf, SAMIRA">📅 Simpan ke Kalender</a></p>
+    </div>
+    <div class="card rv flip">
+      <h3>Resepsi</h3>
+      <p class="date">Sabtu, 31 Oktober 2026</p>
+      <p>10.00 WIB – Selesai</p>
+      <p style="margin-top:8px">SFA Steak &amp; Resto Karanganyar</p>
+      <p style="margin-top:14px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px"><a class="btn" href="https://maps.google.com/?q=SFA+Steak+%26+Resto+Karanganyar" target="_blank" rel="noopener">📍 Lihat Lokasi</a> <a class="btn ghost" data-cal="Resepsi Ammar &amp; Yulia" data-start="2026-10-31T10:00+07:00" data-end="2026-10-31T13:00+07:00" data-loc="SFA Steak &amp; Resto Karanganyar">📅 Simpan ke Kalender</a></p>
+    </div>
+    <div class="card rv flip">
+      <h3>Ngunduh Mantu</h3>
+      <p class="date">Minggu, 1 November 2026</p>
+      <p>09.00 WIB – Selesai</p>
+      <p style="margin-top:8px">Kediaman Mempelai Pria<br>Wonorejo RT 05 RW 015, Bejen, Karanganyar, Jawa Tengah</p>
+      <p style="margin-top:14px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px"><a class="btn" href="https://maps.google.com/?q=-7.5936702,110.9769917" target="_blank" rel="noopener">📍 Lihat Lokasi</a> <a class="btn ghost" data-cal="Ngunduh Mantu Ammar &amp; Yulia" data-start="2026-11-01T09:00+07:00" data-end="2026-11-01T12:00+07:00" data-loc="Kediaman Mempelai Pria, Wonorejo RT 05 RW 015, Bejen, Karanganyar, Jawa Tengah">📅 Simpan ke Kalender</a></p>
+    </div>
+    <img loading="lazy" decoding="async" class="motif-bot" data-px="0.12" src="img/JAWA-MOTIF-BAWAH.png" alt="">
+  </section>
+
+  <!-- GALLERY + STORY -->
+  <section class="veil">
+    <h2 class="h-script rv write">Our Moments</h2>
+    <div class="gallery">
+      <img class="rv unveil" src="../assets/foto/lanskap.webp" alt="Galeri" loading="lazy">
+      <img class="rv tl" src="../assets/foto/galeri-1.webp" alt="Galeri" loading="lazy">
+      <img class="rv tr" src="../assets/foto/galeri-2.webp" alt="Galeri" loading="lazy">
+      <img class="rv tl" src="../assets/foto/galeri-3.webp" alt="Galeri" loading="lazy">
+      <img class="rv tr" src="../assets/foto/galeri-4.webp" alt="Galeri" loading="lazy">
+      <img class="rv tl" src="../assets/foto/galeri-5.webp" alt="Galeri" loading="lazy">
+      <img class="rv tr" src="../assets/foto/galeri-6.webp" alt="Galeri" loading="lazy">
+    </div>
+  </section>
+
+  <!-- GIFT -->
+  <section class="veil">
+    <img loading="lazy" decoding="async" class="motif-top" data-px="0.12" src="img/JAWA-MOTIF-ATAS.png" alt="">
+    <h2 class="h-script rv write">Wedding Gift</h2>
+    <p class="rv">Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika memberi adalah ungkapan tanda kasih, Anda dapat memberi kado secara cashless.</p>
+    <div class="card rv z">
+      <div class="acc">
+        <span class="caps">Bank Mandiri</span>
+        <span class="no">1860009774155</span>
+        <span>a.n. Ammar Abdillah Hasan</span>
+        <button class="btn ghost" data-copy="1860009774155">Salin Rekening</button>
+      </div>
+      <div class="acc">
+        <span class="caps">Bank BNI</span>
+        <span class="no">2009053164</span>
+        <span>a.n. Yulia Ike Rachmawati</span>
+        <button class="btn ghost" data-copy="2009053164">Salin Rekening</button>
+      </div>
+      <hr style="border:0;border-top:1px dashed var(--accent);margin:18px 0">
+      <div class="acc">
+        <span class="caps">Kirim Kado</span>
+        <span>Wonorejo RT 05 RW 015, Bejen, Karanganyar, Jawa Tengah</span>
+        <button class="btn ghost" data-copy="Wonorejo RT 05 RW 015, Bejen, Karanganyar, Jawa Tengah">Salin Alamat</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- WISHES -->
+  <section class="veil">
+    <h2 class="h-script rv write">Ucapan &amp; Doa</h2>
+    <div class="stat"><span>Hadir <b data-stat="Hadir">0</b></span><span>Tidak <b data-stat="Tidak Hadir">0</b></span><span>Ragu <b data-stat="Ragu-ragu">0</b></span></div>
+    <div class="card rv">
+      <form class="wish">
+        <input name="name" placeholder="Nama" required>
+        <select name="attend" required>
+          <option value="Hadir">Hadir</option>
+          <option value="Tidak Hadir">Tidak Hadir</option>
+          <option value="Ragu-ragu">Ragu-ragu</option>
+        </select>
+        <textarea name="msg" placeholder="Tulis ucapan &amp; doa" required minlength="2"></textarea>
+        <div class="stickers" data-list="img/stiker-1.webp,img/stiker-2.webp,img/stiker-3.webp,img/stiker-4.webp,img/stiker-5.webp,img/stiker-6.webp,img/stiker-7.webp,img/stiker-8.webp,img/stiker-9.webp,img/stiker-10.webp,img/stiker-11.webp,img/stiker-12.webp,img/stiker-13.webp,img/stiker-14.webp,img/stiker-16.webp,img/stiker-17.webp,img/stiker-18.webp,img/stiker-19.webp,img/stiker-20.webp,img/stiker-21.webp,img/stiker-22.webp,img/stiker-23.webp,img/stiker-24.webp,img/stiker-25.webp,img/stiker-26.webp,img/stiker-27.webp,img/stiker-28.webp,img/stiker-29.webp,img/stiker-30.webp,img/stiker-32.webp,img/stiker-33.webp,img/stiker-34.webp,img/stiker-35.webp,img/stiker-40.webp,img/stiker-01-.webp,img/stiker-02.webp"></div>
+        <button class="btn" type="submit">Kirim Ucapan</button>
+      </form>
+      <div class="wishes"></div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section id="closing">
+    <img loading="lazy" decoding="async" class="bgx" data-zoom src="img/JAWA-FALLBACK.webp" alt="">
+    <h2 class="h-script rv write">Terima Kasih</h2>
+    <p class="rv focus" style="max-width:320px;margin:10px auto">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.</p>
+    <p class="caps rv" style="font-size:13px">Wassalamu'alaikum Wr. Wb.</p>
+    <p class="script rv" style="font-size:30px;color:#f5d9a8;margin-top:4px">Ammar &amp; Yulia</p>
+  </section>
+</main>
+
+<!-- Musik: assets/music.mp3, mulai dari detik ke-21 (#t=21) -->
+<audio id="music" src="../assets/music.mp3#t=21" loop preload="none"></audio>
+<button id="btn-music" aria-label="Musik">♫</button>
+<script src="../assets/app.js"></script>
+</body>
+</html>

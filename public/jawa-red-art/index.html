@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Wedding of Ammar &amp; Yulia</title>
+<meta name="description" content="Undangan pernikahan Ammar & Yulia — 01.11.2026">
+<!-- Preview WhatsApp/sosmed: ganti https://undangan-anda.com dengan domain final -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Undangan Pernikahan">
+<meta property="og:title" content="The Wedding of Ammar & Yulia">
+<meta property="og:description" content="Undangan pernikahan Ammar & Yulia — 01.11.2026. Tanpa mengurangi rasa hormat, kami mengundang Anda untuk hadir.">
+<meta property="og:url" content="https://undangan-anda.com/jawa-red-art/">
+<meta property="og:image" content="https://undangan-anda.com/jawa-red-art/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#7a2f3a">
+<link rel="preload" as="image" href="../assets/foto/cover-red.webp" fetchpriority="high">
+<link rel="preload" as="image" href="img/BG-1-red-tema-art-jawa-1.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alice&family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Pinyon+Script&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/base.css">
+<style>
+/* Font judul gaya aksara Jawa: taruh file JAWAPALSU.ttf di img/ (jika punya lisensinya).
+   Tanpa file itu otomatis pakai Cinzel Decorative. */
+/* @font-face{font-family:'Jawa Palsu';src:url(img/JAWAPALSU.ttf) format('truetype');font-display:swap} — aktifkan lagi setelah filenya ada */
+:root{--f-body:'Alice',serif;--maroon:#7a2f3a;--page:#2a1215;--bg:#fff;--ink:#7a2f3a;--accent:#8c3d48;--on-accent:#fff;--card:rgba(255,255,255,.6)}
+body{font-size:15px}
+.jawa{font-family:'Jawa Palsu','Cinzel Decorative',serif;font-weight:700;color:var(--maroon);line-height:1.1}
+.corm{font-family:'Cormorant Garamond',serif}
+.pop{font-family:'Poppins',sans-serif}
+section{padding:0}
+.btn{font:500 12px 'Poppins',sans-serif;letter-spacing:.04em;text-transform:none;border-radius:4px;padding:8px 18px;box-shadow:none}
+
+/* COVER: foto pasangan full layar */
+.cover{justify-content:flex-end;padding:0 24px 48px;color:var(--maroon);background:#f3e4e2 url(img/BG-1-red-tema-art-jawa-1.webp) center/cover}
+/* potret berbingkai di depan latar; bagian bawahnya memudar ke pink supaya nama & tombol terbaca */
+.cover .portrait{position:absolute;z-index:0;top:1vh;left:50%;width:min(112%,540px);max-width:none;max-height:76vh;object-fit:contain;object-position:top;transform:translateX(-50%);animation:coverIn 1.8s cubic-bezier(.22,1,.36,1) both}
+.cover::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(transparent 50%,rgba(243,228,226,.92) 74%)}
+.cover>:not(.portrait){z-index:2}
+@keyframes coverIn{from{opacity:0;transform:translateX(-50%) translateY(24px) scale(.96)}}
+.cover .names{font-size:34px;color:var(--maroon);margin-bottom:10px}
+.cover .to{font-size:14px}
+.cover .guest-name{font:400 26px 'Pinyon Script',cursive;color:var(--maroon);margin:8px 0 22px}
+.cover .btn{border-radius:999px;padding:11px 26px;font-size:13px;border:1px solid #fff;background:var(--accent)}
+
+/* Intro video (gunungan → gapura → joglo) */
+#intro{position:relative}
+#intro video{display:block;width:100%;height:100vh;height:100svh;object-fit:cover}
+.hero{position:absolute;inset:34% 0 auto;z-index:2;color:#62533b}
+.hero>*{opacity:0}
+body.opened .hero>*{animation:heroIn 1.3s cubic-bezier(.22,1,.36,1) both}
+body.opened .hero>:nth-child(1){animation-delay:3s}
+body.opened .hero>:nth-child(2){animation-delay:3.3s}
+body.opened .hero>:nth-child(3){animation-delay:3.6s}
+body.opened .hero>:nth-child(4){animation-delay:3.9s}
+body.opened .hero>:nth-child(5){animation-delay:4.3s}
+@keyframes heroIn{from{opacity:0;transform:translateY(20px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.hero .caps{font-size:13px;letter-spacing:.06em}
+.hero .jawa{font-size:35px;color:#62533b;margin:6px 0}
+.hero .amp{font:400 40px 'Pinyon Script',cursive;line-height:.8}
+.hero .date{font:500 12px 'Poppins',sans-serif;margin-top:10px}
+
+/* Latar putih berpinggiran batik (BG-6 diulang) */
+.batik{background:#fff url(img/BG-6-red-tema-art-jawa-1.webp) center top/100% auto repeat-y;padding:60px 70px}
+.bismillah{width:200px;margin:0 auto 22px;filter:brightness(0) saturate(100%) invert(22%) sepia(28%) saturate(1900%) hue-rotate(318deg) brightness(90%)}
+.salam{font-size:14px;line-height:1.7}
+.salam i{font-weight:600}
+
+.person{margin-top:46px}
+.oval{width:230px;aspect-ratio:3/4;margin:0 auto;border-radius:50%;padding:9px;background:linear-gradient(135deg,#f7e08a,#b8862b 35%,#f9e7a1 55%,#a8761f 80%,#e9c868);box-shadow:0 10px 30px rgba(122,47,58,.25),inset 0 0 0 2px #fff6d0}
+.oval img{width:100%;height:100%;object-fit:cover;border-radius:50%;background:#efdcdc}
+.oval img.ph{object-fit:contain;padding:30px}
+.person .nick{font-size:40px;margin-top:22px}
+.person .full{font-size:26px;margin:6px 0}
+.person .parent{font-size:13px;opacity:.85}
+.ig{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);margin-top:14px}
+.ig .i{width:16px;height:16px;color:#fff}
+.and{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:46px;font:400 46px 'Cormorant Garamond',serif}
+.and::before,.and::after{content:"";width:70px;height:1px;background:var(--maroon)}
+
+/* Acara: tiap acara di dalam gapura full */
+.acara{background:url(img/Acara-red-tema-art-jawa-1.webp) center bottom/100% auto no-repeat;aspect-ratio:400/670;padding:47% 60px 0}
+.acara h2{font-size:26px;margin:0 -40px 18px;white-space:nowrap}
+.acara .date{font:500 13px 'Poppins',sans-serif;letter-spacing:.03em;padding-bottom:6px;border-bottom:2px solid var(--maroon);display:inline-block;min-width:80%}
+.acara .time{font:500 13px "Poppins",sans-serif;margin:10px 0 22px}
+.acara .loc{font:600 11.5px 'Poppins',sans-serif;text-transform:uppercase;letter-spacing:.03em}
+.acara .addr{font-size:13px;margin:4px 0 16px}
+.acara .btns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.acara .btns .btn{padding:8px 12px;font-size:11.5px}
+
+/* Latar lanskap pink */
+.lanskap{background:#f3e3e1 url(img/BG-4-red-tema-art-jawa-1.webp) center top/100% auto repeat-y}
+#gallery{padding:50px 26px 40px}
+#gallery .wayang{width:60px;margin:0 auto 10px;opacity:.85}
+#gallery h2{font-size:36px}
+#gallery .gallery{grid-template-columns:1fr 1fr;gap:6px}
+#gallery .gallery img,#gallery .gallery img:first-child{grid-column:auto;aspect-ratio:2/3;border-radius:6px;border:3px solid #fff}
+.gallery img.ph{object-fit:contain;padding:30%;background:#f6eaea}
+
+#countdown{background:url(img/BG-1-red-tema-art-jawa-1.webp) center/cover;padding:116px 20px 40px;position:relative}
+#countdown .janur{position:absolute;top:0;left:0;width:100%;pointer-events:none}
+#countdown h2{font-size:30px;margin-top:20px}
+#countdown .count{gap:24px;margin:10px 0 0}
+#countdown .count div{width:auto;padding:0;background:none;color:var(--maroon)}
+#countdown .count b{font:400 42px 'Poppins',sans-serif}
+#countdown .count small{font:400 12px 'Poppins',sans-serif;text-transform:none;letter-spacing:0}
+
+#rsvp{background:url(../assets/foto/galeri-2.webp) center/cover,url(img/BG-1-red-tema-art-jawa-1.webp) center/cover;padding:60px 22px 70px}
+#rsvp .head{color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5);margin-bottom:24px}
+#rsvp .head .jawa{color:#fff;font-size:30px}
+#rsvp .head .corm{font-size:30px}
+.rsvp-card{background:url(img/BG-4-red-tema-art-jawa-1.webp) center/cover;border-radius:10px;padding:22px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25);position:relative}
+.rsvp-card::before{content:"";position:absolute;inset:0;border-radius:10px;background:rgba(240,214,214,.55)}
+.rsvp-card>*{position:relative}
+.rsvp-card .pop{font-weight:500}
+.stat{gap:12px;margin:12px 0 18px}
+.stat span{display:flex;flex-direction:column;min-width:76px;padding:6px 4px;border:1px solid var(--maroon);border-radius:4px;background:transparent;font:400 10px 'Poppins',sans-serif}
+.stat b{font-size:17px;font-weight:500}
+form.wish input,form.wish select,form.wish textarea{font:400 13px 'Poppins',sans-serif;border-radius:4px;border:0;background:rgba(255,255,255,.75)}
+form.wish .btn{justify-self:start;padding:9px 22px}
+.wishes article{background:transparent;border-bottom:1px solid rgba(122,47,58,.2);border-radius:0;font-family:'Poppins',sans-serif;font-size:13px;color:#555}
+.wishes article b{color:var(--maroon)}
+.awan{position:absolute;width:110px;z-index:3;pointer-events:none}
+
+#gift{padding:40px 22px}
+.gift-card{background:url(img/BG-1-red-tema-art-jawa-1.webp) center/cover;border:6px solid rgba(255,255,255,.75);border-radius:8px;padding:40px 22px 30px;box-shadow:0 8px 24px rgba(122,47,58,.2)}
+.gift-card h2{font-size:32px;margin-bottom:16px}
+.gift-card p{font-size:15px}
+.gift-card summary{list-style:none;cursor:pointer;margin-top:18px}
+.gift-card summary::-webkit-details-marker{display:none}
+.gift-card summary i{display:block;font:italic 500 13px 'Poppins',sans-serif;margin-bottom:10px}
+.acc{background:rgba(255,255,255,.75);border-radius:8px;padding:14px;margin:14px 0 0}
+.acc .no{font:600 17px 'Poppins',sans-serif;letter-spacing:.05em}
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 22px 30px}
+.strip img{aspect-ratio:1;object-fit:cover;width:100%;border-radius:2px}
+.strip img.ph{object-fit:contain;padding:18%;background:#f6eaea}
+
+#closing{background:#fff url(img/penutup-red-tema-art-jawa-1.webp) center bottom/100% auto no-repeat;padding:60px 60px calc(min(100vw,480px)*1.02)}
+#closing h2{font-size:32px;margin-bottom:16px}
+#closing .ayat{font-size:13.5px;text-align:justify;line-height:1.75}
+#closing .thanks{font:italic 400 22px 'Cormorant Garamond',serif;margin:22px 0 8px}
+#closing .kyb{font-size:24px;margin-top:20px}
+footer{background:#6e2731;color:#fff;text-align:center;font:500 11px 'Poppins',sans-serif;padding:12px}
+</style>
+</head>
+<body>
+
+<!-- COVER — latar img/BG-1, potret: assets/foto/cover-red.webp -->
+<div class="cover">
+  <img class="portrait" src="../assets/foto/cover-red.webp" alt="Ammar &amp; Yulia" fetchpriority="high">
+  <h1 class="jawa names">Ammar &amp; Yulia</h1>
+  <p class="to">Kepada yth</p>
+  <p class="guest-name" data-guest>Tamu Undangan</p>
+  <button id="btn-open" class="btn"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#mail"/></svg> Buka Undangan</button>
+</div>
+
+<main class="inv">
+
+  <!-- INTRO MOTION -->
+  <section id="intro">
+    <video src="img/motion.mp4" muted playsinline preload="auto" data-play-on-open></video>
+    <div class="hero">
+      <p class="caps">The Wedding Of</p>
+      <h1 class="jawa">Ammar</h1>
+      <p class="amp">&amp;</p>
+      <h1 class="jawa">Yulia</h1>
+      <p class="date">01.11.2026</p>
+    </div>
+  </section>
+
+  <!-- SALAM + MEMPELAI -->
+  <section class="batik">
+    <img loading="lazy" decoding="async" class="bismillah rv write" src="img/bismillah-3-1-1.webp" alt="Bismillahirrahmanirrahim">
+    <p class="salam rv"><i>Assalamu'alaikum Warahmatullahi Wabarakatuh,</i><br>Dengan memohon rahmat dan ridho Allah SWT, Kami mengundang Bapak/Ibu/Saudara/i, untuk menghadiri acara pernikahan kami.</p>
+
+    <div class="person">
+      <!-- ganti foto: ../assets/foto/pria.webp -->
+      <div class="oval rv iris"><img loading="lazy" decoding="async" src="../assets/foto/pria.webp" data-ph="img/wayang-red-1.webp" alt="Mempelai pria"></div>
+      <h2 class="jawa nick rv write">Ammar</h2>
+      <p class="corm full rv focus">Ammar Abdillah Hasan</p>
+      <p class="parent rv">Putra Pertama dari Bapak Sunaryo<br>dan Ibu Supraptiningsih</p>
+    </div>
+
+    <p class="and rv z">&amp;</p>
+
+    <div class="person">
+      <!-- ganti foto: ../assets/foto/wanita.webp -->
+      <div class="oval rv iris"><img loading="lazy" decoding="async" src="../assets/foto/wanita.webp" data-ph="img/wayang-red-1.webp" alt="Mempelai wanita"></div>
+      <h2 class="jawa nick rv write">Yulia</h2>
+      <p class="corm full rv focus">Yulia Ike Rachmawati</p>
+      <p class="parent rv">Putri Pertama dari Bapak Tri Hastanto<br>dan Ibu Budi Sayekti</p>
+    </div>
+  </section>
+
+  <!-- AKAD -->
+  <section class="acara">
+    <h2 class="jawa rv write">Akad Nikah</h2>
+    <p class="date rv focus">SABTU, 31 OKTOBER 2026</p>
+    <p class="time rv">08:00 WIB</p>
+    <p class="loc rv">Masjid Abdurrahman bin Auf</p>
+    <p class="addr rv">SAMIRA</p>
+    <div class="btns rv stagger">
+      <a class="btn" href="https://maps.google.com/?q=Masjid+Abdurrahman+bin+Auf+SAMIRA" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#pin"/></svg> Lihat Lokasi</a>
+      <a class="btn" data-cal="Akad Nikah Ammar &amp; Yulia" data-start="2026-10-31T08:00+07:00" data-end="2026-10-31T10:00+07:00" data-loc="Masjid Abdurrahman bin Auf, SAMIRA"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#calendar"/></svg> Simpan Tanggal</a>
+    </div>
+  </section>
+
+  <!-- RESEPSI -->
+  <section class="acara">
+    <h2 class="jawa rv write">Resepsi</h2>
+    <p class="date rv focus">SABTU, 31 OKTOBER 2026</p>
+    <p class="time rv">10:00 WIB</p>
+    <p class="loc rv">SFA Steak &amp; Resto</p>
+    <p class="addr rv">Karanganyar</p>
+    <div class="btns rv stagger">
+      <a class="btn" href="https://maps.google.com/?q=SFA+Steak+%26+Resto+Karanganyar" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#pin"/></svg> Lihat Lokasi</a>
+      <a class="btn" data-cal="Resepsi Ammar &amp; Yulia" data-start="2026-10-31T10:00+07:00" data-end="2026-10-31T13:00+07:00" data-loc="SFA Steak &amp; Resto, Karanganyar"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#calendar"/></svg> Simpan Tanggal</a>
+    </div>
+  </section>
+
+  <!-- NGUNDUH MANTU -->
+  <section class="acara">
+    <h2 class="jawa rv write">Ngunduh Mantu</h2>
+    <p class="date rv focus">MINGGU, 1 NOVEMBER 2026</p>
+    <p class="time rv">09:00 WIB</p>
+    <p class="loc rv">Kediaman Mempelai Pria</p>
+    <p class="addr rv">Wonorejo RT 05 RW 015, Bejen<br>Karanganyar, Jawa Tengah</p>
+    <div class="btns rv stagger">
+      <a class="btn" href="https://maps.google.com/?q=-7.5936702,110.9769917" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#pin"/></svg> Lihat Lokasi</a>
+      <a class="btn" data-cal="Ngunduh Mantu Ammar &amp; Yulia" data-start="2026-11-01T09:00+07:00" data-end="2026-11-01T12:00+07:00" data-loc="Wonorejo RT 05 RW 015, Bejen, Karanganyar, Jawa Tengah"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#calendar"/></svg> Simpan Tanggal</a>
+    </div>
+  </section>
+  <!-- GALLERY — ganti foto: ../assets/foto/galeri-1.webp … galeri-6.jpg -->
+  <section id="gallery" class="lanskap">
+    <img loading="lazy" decoding="async" class="wayang floaty" data-px="-0.35" src="img/wayang-red-1.webp" alt="">
+    <h2 class="jawa rv write">Our Gallery</h2>
+    <p class="rv focus" style="font-size:14px;margin-top:8px">“Loved you yesterday, love you still,<br>always have, always will.”</p>
+    <div class="gallery">
+      <img class="rv tr" src="../assets/foto/galeri-1.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+      <img class="rv tl" src="../assets/foto/galeri-2.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+      <img class="rv tr" src="../assets/foto/galeri-3.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+      <img class="rv tl" src="../assets/foto/galeri-4.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+      <img class="rv tr" src="../assets/foto/galeri-5.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+      <img class="rv tl" src="../assets/foto/galeri-6.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+    </div>
+  </section>
+
+  <!-- COUNTDOWN -->
+  <section id="countdown">
+    <img loading="lazy" decoding="async" class="janur" data-px="0.2" src="img/JANUR-RED-1.webp" alt="">
+    <h2 class="jawa rv write">Hitung Mundur</h2>
+    <div class="count rv stagger" data-countdown="2026-10-31T08:00:00+07:00">
+      <div><b data-d>00</b><small>Hari</small></div>
+      <div><b data-h>00</b><small>Jam</small></div>
+      <div><b data-m>00</b><small>Menit</small></div>
+      <div><b data-s>00</b><small>Detik</small></div>
+    </div>
+  </section>
+
+  <!-- RSVP — foto latar: assets/foto/galeri-2.jpg -->
+  <section id="rsvp">
+    <div class="head">
+      <p class="jawa rv write">RSVP</p>
+      <p class="corm rv focus">Ucapan</p>
+      <p class="rv" style="font-size:13px">Konfirmasi Kehadiran &amp; Ucapan Selamat</p>
+    </div>
+    <div class="rsvp-card rv flip">
+      <p class="pop">Konfirmasi &amp; Ucapan</p>
+      <div class="stat"><span><b data-stat="Hadir">0</b>Hadir</span><span><b data-stat="Tidak Hadir">0</b>Tidak Hadir</span><span><b data-stat="Ragu-ragu">0</b>Masih Ragu</span></div>
+      <form class="wish">
+        <input name="name" placeholder="Nama" required>
+        <textarea name="msg" placeholder="Ucapan" required minlength="2"></textarea>
+        <select name="attend" required>
+          <option value="" disabled selected>Konfirmasi Kehadiran</option>
+          <option value="Hadir">Hadir</option>
+          <option value="Tidak Hadir">Tidak Hadir</option>
+          <option value="Ragu-ragu">Masih Ragu</option>
+        </select>
+        <button class="btn" type="submit">Kirim</button>
+      </form>
+      <div class="wishes"></div>
+    </div>
+    <img loading="lazy" decoding="async" class="awan drift" data-px="0.4" src="img/Jawa-Classic-awan-1-2.webp" alt="" style="right:-14px;bottom:28px">
+  </section>
+
+  <!-- GIFT -->
+  <section id="gift" class="lanskap">
+    <img loading="lazy" decoding="async" class="awan drift" data-px="-0.3" src="img/Jawa-Classic-awan-1-2.webp" alt="" style="right:-10px;top:14px">
+    <div class="gift-card rv z">
+      <h2 class="jawa">Wedding Gift</h2>
+      <p>Doa restu anda merupakan karunia yang sangat berarti bagi kami, dan jika memberi adalah ungkapan tanda kasih anda, anda dapat memberi kado secara cashless.</p>
+      <details>
+        <summary><i>Klik Wedding Gift</i><span class="btn"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#gift"/></svg> Wedding Gift</span></summary>
+        <img loading="lazy" decoding="async" class="floaty" src="img/Kado.webp" alt="" style="width:70px;margin:18px auto 0">
+        <div class="acc">
+          <span class="pop" style="font-weight:600">Mandiri</span>
+          <span class="no">1860 0097 7415 5</span>
+          <span>a.n. Ammar Abdillah Hasan</span>
+          <button class="btn" data-copy="1860009774155"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#copy"/></svg> Salin Rekening</button>
+        </div>
+        <div class="acc">
+          <span class="pop" style="font-weight:600">BNI</span>
+          <span class="no">2009 0531 64</span>
+          <span>a.n. Yulia Ike Rachmawati</span>
+          <button class="btn" data-copy="2009053164"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#copy"/></svg> Salin Rekening</button>
+        </div>
+        <div class="acc">
+          <span class="pop" style="font-weight:600">Kirim Kado</span>
+          <span>Wonorejo RT 05 RW 015, Bejen, Karanganyar, Jawa Tengah</span>
+          <button class="btn" data-copy="Wonorejo RT 05 RW 015, Bejen, Karanganyar, Jawa Tengah"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#copy"/></svg> Salin Alamat</button>
+        </div>
+      </details>
+    </div>
+  </section>
+  <div class="strip lanskap">
+    <img class="rv unveil" src="../assets/foto/galeri-1.webp" data-ph="img/wayang-red-1.webp" alt="" loading="lazy">
+    <img class="rv unveil" src="../assets/foto/galeri-2.webp" data-ph="img/wayang-red-1.webp" alt="" loading="lazy">
+    <img class="rv unveil" src="../assets/foto/galeri-3.webp" data-ph="img/wayang-red-1.webp" alt="" loading="lazy">
+  </div>
+
+  <!-- PENUTUP -->
+  <section id="closing">
+    <h2 class="jawa rv write">(Ar-Rum 21)</h2>
+    <p class="ayat rv focus">“Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang. Sungguh, pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir.”</p>
+    <p class="thanks rv write">Terimakasih</p>
+    <p class="rv" style="font-size:13px">Kedua Mempelai &amp; Keluarga Besar<br>Wassalamualaikum Wr. Wb</p>
+    <p class="jawa kyb rv write">Kami Yang Berbahagia</p>
+    <p class="jawa rv z" style="font-size:22px;margin-top:6px">Ammar &amp; Yulia</p>
+  </section>
+  <footer>Ammar &amp; Yulia · 01.11.2026</footer>
+</main>
+
+<!-- Musik: assets/music.mp3, mulai dari detik ke-21 (#t=21) -->
+<audio id="music" src="../assets/music.mp3#t=21" loop preload="none"></audio>
+<button id="btn-music" aria-label="Musik"><svg class="i" aria-hidden="true"><use href="../assets/icons.svg#disc"/></svg></button>
+<script src="../assets/app.js"></script>
+</body>
+</html>

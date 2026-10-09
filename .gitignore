@@ -1,0 +1,8 @@
+node_modules
+.next
+.env*.local
+local.db*
+.vercel
+.DS_Store
+# cadangan file sumber (video asli, aset mentah, halaman lama) — tidak dipakai saat deploy
+media-original/

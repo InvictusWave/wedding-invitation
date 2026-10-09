@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kirim Undangan</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6efee;--card:#fff;--ink:#3a2a2c;--muted:#7d6b6d;--line:#e6d8d8;--accent:#8c3d48;--wa:#1fa855}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:760px;margin:0 auto;padding:28px 16px 60px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+label{display:block;font-weight:600;margin-bottom:6px}
+.hint{font-weight:400;color:var(--muted);font-size:12px}
+select,textarea,input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:inherit}
+textarea{resize:vertical}
+#names{min-height:140px}
+#tpl{min-height:220px}
+.row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+@media (max-width:600px){.row{grid-template-columns:1fr}}
+.out-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.guest{display:flex;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.guest:first-of-type{border-top:0}
+.guest .who{flex:1;min-width:0}
+.guest b{display:block}
+.guest a.link{color:var(--muted);font-size:12px;word-break:break-all}
+.btn{border:0;border-radius:8px;padding:8px 12px;font:500 13px 'Poppins',sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap;background:#f1e6e7;color:var(--accent)}
+.btn.wa{background:var(--wa);color:#fff}
+.btn.sent{opacity:.55}
+.empty{color:var(--muted);text-align:center;padding:20px}
+.imports{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+</style>
+</head>
+<body>
+<main>
+  <h1>Kirim Undangan</h1>
+  <p class="sub">Tulis nama tamu, lalu kirim link personal lewat WhatsApp. Isian tersimpan di browser ini.</p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="theme">Tema undangan</label>
+        <select id="theme">
+          <option value="jawa-red-art">Jawa Red Art</option>
+          <option value="adat-jawa">Adat Jawa</option>
+          <option value="jawa-classic-foto">Jawa Classic Foto</option>
+        </select>
+      </div>
+      <div>
+        <label for="base">Alamat web <span class="hint">(otomatis)</span></label>
+        <input id="base">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label for="names">Daftar tamu <span class="hint">— satu per baris. Opsional nomor WA: <code>Budi &amp; Partner | 0812xxxx</code></span></label>
+    <textarea id="names" placeholder="Hasan Blong dan Pasangan&#10;Keluarga Bapak Slamet | 081234567890&#10;Rekan Kantor"></textarea>
+    <div class="imports">
+      <button class="btn" type="button" id="pick" hidden>Pilih dari Kontak HP</button>
+      <button class="btn" type="button" id="import">Import Excel / CSV / vCard</button>
+      <input type="file" id="file" accept=".xlsx,.xls,.csv,.vcf" hidden>
+      <span class="hint" id="import-msg">Excel: kolom nama &amp; nomor WA. iPhone: bagikan kontak sebagai .vcf.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label for="tpl">Teks pesan <span class="hint">— {nama} dan {link} akan diganti otomatis</span></label>
+    <textarea id="tpl"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="out-head"><b id="count">0 tamu</b><span class="hint">Tombol berubah pudar setelah diklik</span></div>
+    <div id="out"><p class="empty">Belum ada nama tamu.</p></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const DEFAULT_TPL = `Kepada Yth.
+Bapak/Ibu/Saudara/i
+*{nama}*
+
+Tanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami.
+
+Berikut link undangan kami untuk info lengkap acara:
+{link}
+
+Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
+
+Terima kasih.`;
+
+// Per-device convenience only; nothing here needs to be shared.
+const store = {
+  get: k => { try { return localStorage.getItem('kirim:' + k); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem('kirim:' + k, v); } catch {} },
+};
+
+$('theme').value = store.get('theme') || 'jawa-red-art';
+$('base').value = store.get('base') || location.origin;
+$('names').value = store.get('names') || '';
+$('tpl').value = store.get('tpl') || DEFAULT_TPL;
+
+// 0812… / +62812… / 62812… / 812… (Excel drops the leading 0) → 62812…
+const waNumber = raw => {
+  const d = (raw || '').replace(/\D/g, '');
+  return d.startsWith('0') ? '62' + d.slice(1) : d.startsWith('8') ? '62' + d : d;
+};
+
+function render() {
+  for (const k of ['theme', 'base', 'names', 'tpl']) store.set(k, $(k).value);
+  const base = $('base').value.replace(/\/+$/, '');
+  const guests = $('names').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const [name, phone] = l.split('|').map(s => s.trim());
+    return { name, phone: waNumber(phone) };
+  });
+  $('count').textContent = `${guests.length} tamu`;
+  if (!guests.length) { $('out').innerHTML = '<p class="empty">Belum ada nama tamu.</p>'; return; }
+
+  $('out').replaceChildren(...guests.map(({ name, phone }) => {
+    const link = `${base}/${$('theme').value}/?to=${encodeURIComponent(name).replace(/%20/g, '+')}`;
+    const text = $('tpl').value.replaceAll('{nama}', name).replaceAll('{link}', link);
+    const row = document.createElement('div');
+    row.className = 'guest';
+    row.innerHTML = '<div class="who"><b></b><a class="link" target="_blank" rel="noopener"></a></div>' +
+      '<button class="btn" type="button">Salin</button><a class="btn wa" target="_blank" rel="noopener">WhatsApp</a>';
+    row.querySelector('b').textContent = name + (phone ? ` · +${phone}` : '');
+    Object.assign(row.querySelector('a.link'), { href: link, textContent: link });
+    const wa = row.querySelector('a.wa');
+    wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    wa.addEventListener('click', () => wa.classList.add('sent'));
+    const copy = row.querySelector('button');
+    copy.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(text);
+      copy.textContent = 'Tersalin';
+      setTimeout(() => (copy.textContent = 'Salin'), 1500);
+    });
+    return row;
+  }));
+}
+
+// Import: append "Nama | nomor" lines, skipping ones already in the list.
+function addGuests(list) {
+  const have = new Set($('names').value.split('\n').map(l => l.split('|')[0].trim().toLowerCase()));
+  const lines = list.filter(g => g.name && !have.has(g.name.toLowerCase()) && have.add(g.name.toLowerCase()))
+    .map(g => g.phone ? `${g.name} | ${g.phone}` : g.name);
+  $('names').value = ($('names').value.trim() + '\n' + lines.join('\n')).trim();
+  $('import-msg').textContent = `${lines.length} kontak ditambahkan.`;
+  render();
+}
+
+const isPhone = v => /^[+\d\s().-]+$/.test(v) && v.replace(/\D/g, '').length >= 8;
+
+// Rows of cells → guests. Phone = first phone-looking cell, name = first cell with letters
+// (so a "No" column of 1, 2, 3 is ignored). A first row without a phone that mentions nama/name is the header.
+const fromRows = rows => rows.map(r => r.map(c => String(c ?? '').trim()))
+  .filter((cells, i) => !(i === 0 && !cells.some(isPhone) && /nama|name/i.test(cells.join(' '))))
+  .map(cells => ({ name: cells.find(c => /\p{L}/u.test(c) && !isPhone(c)) || '', phone: cells.find(isPhone) || '' }));
+
+const fromVcf = text => text.replace(/\r?\n[ \t]/g, '').split(/BEGIN:VCARD/i).slice(1).map(card => ({
+  name: (card.match(/^FN[^:]*:(.*)$/im) || [])[1]?.trim() || '',
+  phone: (card.match(/^(?:item\d+\.)?TEL[^:]*:(.*)$/im) || [])[1]?.trim() || '',
+}));
+
+$('import').addEventListener('click', () => $('file').click());
+$('file').addEventListener('change', async () => {
+  const file = $('file').files[0];
+  $('file').value = '';
+  if (!file) return;
+  try {
+    if (/\.vcf$/i.test(file.name)) return addGuests(fromVcf(await file.text()));
+    if (!window.XLSX) await new Promise((ok, fail) => document.head.appendChild(Object.assign(
+      document.createElement('script'), { src: 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', onload: ok, onerror: fail })));
+    const wb = XLSX.read(await file.arrayBuffer());
+    addGuests(fromRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false })));
+  } catch {
+    $('import-msg').textContent = 'Gagal membaca file. Pastikan formatnya .xlsx, .csv, atau .vcf.';
+  }
+});
+
+// Contact Picker API: Chrome Android only, so the button stays hidden elsewhere.
+if ('contacts' in navigator && 'select' in navigator.contacts) {
+  $('pick').hidden = false;
+  $('pick').addEventListener('click', async () => {
+    try {
+      const picked = await navigator.contacts.select(['name', 'tel'], { multiple: true });
+      addGuests(picked.map(c => ({ name: (c.name?.[0] || '').trim(), phone: c.tel?.[0] || '' })));
+    } catch {}
+  });
+}
+
+for (const k of ['theme', 'base', 'names', 'tpl']) $(k).addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
