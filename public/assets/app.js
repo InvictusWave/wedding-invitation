@@ -30,8 +30,9 @@ $('#btn-open')?.addEventListener('click', () => {
   // Intro motion starts from the beginning only once the cover is gone
   $$('video[data-play-on-open]').forEach(v => { v.currentTime = 0; v.play().catch(() => {}); });
   setTimeout(startReveal, 500);
+  smoothScroll();
 });
-if (!$('#btn-open')) startReveal();
+if (!$('#btn-open')) { startReveal(); smoothScroll(); }
 btnMusic?.addEventListener('click', () => setMusic(music.paused));
 document.addEventListener('visibilitychange', () => document.hidden && setMusic(false));
 
@@ -96,6 +97,21 @@ function startReveal() {
     io.observe(t);
   });
   $$('.zoom,.muncul,.muncul-kiri,.muncul-kanan').forEach(el => io2.observe(el));
+}
+
+// Slower, gliding scroll (wheel + touch) via Lenis. Started after the cover opens, while the body still scrolls.
+// lerp/multipliers are the knobs: lower = slower and softer.
+function smoothScroll() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  $$('.wishes,.stickers').forEach(el => el.setAttribute('data-lenis-prevent', '')); // keep inner lists scrollable
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js';
+  s.onload = () => {
+    const lenis = new Lenis({ lerp: 0.07, wheelMultiplier: 0.8, syncTouch: true, syncTouchLerp: 0.06, touchInertiaMultiplier: 22 });
+    const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
+    requestAnimationFrame(raf);
+  };
+  document.head.append(s);
 }
 
 // Scroll-linked motion. [data-px="0.3"]: ornament drifts against the scroll (parallax depth);

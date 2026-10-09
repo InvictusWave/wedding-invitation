@@ -1,6 +1,8 @@
 /* Shared layout + behaviour styles. Each theme sets the tokens on :root. */
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
+/* Lenis (app.js smoothScroll) */
+html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
 body{font-family:var(--f-body,'Cormorant Garamond',serif);color:var(--ink);background:var(--page);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
 body:not(.opened){overflow:hidden}
 img{max-width:100%;display:block}
