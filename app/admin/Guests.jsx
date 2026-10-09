@@ -1,6 +1,20 @@
 'use client';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { startTransition, useEffect, useMemo, useOptimistic, useRef, useState, useTransition } from 'react';
+import { Plus, Search, Send, Copy, Trash2, Contact, FileSpreadsheet, MessageSquareText, Check } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { Spinner } from '@/components/ui/spinner';
 import { addGuests, markSent, deleteGuest } from './actions';
+import { fromText, fromRows, fromVcf, loadXlsx } from './import';
 
 const DEFAULT_TPL = `Kepada Yth.
 Bapak/Ibu/Saudara/i
@@ -21,44 +35,22 @@ const store = {
   set: (k, v) => { try { localStorage.setItem('adm:' + k, v); } catch {} },
 };
 
-const isPhone = v => /^[+\d\s().-]+$/.test(v) && v.replace(/\D/g, '').length >= 8;
+const fmt = t => new Date(t).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'short', timeStyle: 'short' });
 
-// "Nama | nomor" per line
-const fromText = text => text.split('\n').map(l => l.split('|').map(s => s.trim())).map(([name, phone]) => ({ name, phone }));
-
-// Rows of cells → guests. Phone = first phone-looking cell, name = first cell with letters
-// (so a "No" column of 1, 2, 3 is ignored). A first row without a phone that mentions nama/name is the header.
-const fromRows = rows => rows.map(r => r.map(c => String(c ?? '').trim()))
-  .filter((cells, i) => !(i === 0 && !cells.some(isPhone) && /nama|name/i.test(cells.join(' '))))
-  .map(cells => ({ name: cells.find(c => /\p{L}/u.test(c) && !isPhone(c)) || '', phone: cells.find(isPhone) || '' }));
-
-const fromVcf = text => text.replace(/\r?\n[ \t]/g, '').split(/BEGIN:VCARD/i).slice(1).map(card => ({
-  name: (card.match(/^FN[^:]*:(.*)$/im) || [])[1]?.trim() || '',
-  phone: (card.match(/^(?:item\d+\.)?TEL[^:]*:(.*)$/im) || [])[1]?.trim() || '',
-}));
-
-const loadXlsx = () => window.XLSX || new Promise((ok, fail) => document.head.appendChild(Object.assign(
-  document.createElement('script'), { src: 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', onload: () => ok(window.XLSX), onerror: fail })));
-
-export default function Guests({ theme, guests }) {
+function AddGuests() {
+  const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
-  const [tpl, setTpl] = useState(DEFAULT_TPL);
-  const [q, setQ] = useState('');
-  const [msg, setMsg] = useState('');
-  const [origin, setOrigin] = useState('');
   const [canPick, setCanPick] = useState(false);
   const [busy, start] = useTransition();
   const file = useRef(null);
-
-  useEffect(() => {
-    setTpl(store.get('tpl') || DEFAULT_TPL);
-    setOrigin(location.origin);
-    setCanPick('contacts' in navigator && 'select' in navigator.contacts); // Chrome Android only
-  }, []);
+  useEffect(() => setCanPick('contacts' in navigator && 'select' in navigator.contacts), []); // Chrome Android only
 
   const save = list => start(async () => {
     const { added } = await addGuests(list);
-    setMsg(`${added} tamu ditambahkan${list.length > added ? `, ${list.length - added} dilewati (kosong/sudah ada)` : ''}.`);
+    const skipped = list.length - added;
+    toast.success(`${added} tamu ditambahkan`, { description: skipped ? `${skipped} dilewati (kosong atau sudah ada)` : undefined });
+    setText('');
+    setOpen(false);
   });
 
   const onFile = async e => {
@@ -71,7 +63,7 @@ export default function Guests({ theme, guests }) {
       const wb = X.read(await f.arrayBuffer());
       save(fromRows(X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false })));
     } catch {
-      setMsg('Gagal membaca file. Pastikan formatnya .xlsx, .csv, atau .vcf.');
+      toast.error('Gagal membaca file', { description: 'Pastikan formatnya .xlsx, .csv, atau .vcf.' });
     }
   };
 
@@ -82,65 +74,180 @@ export default function Guests({ theme, guests }) {
     } catch {}
   };
 
-  const linkFor = name => `${origin}/${theme}/?to=${encodeURIComponent(name).replace(/%20/g, '+')}`;
-  const messageFor = name => tpl.replaceAll('{nama}', name).replaceAll('{link}', linkFor(name));
-  const shown = guests.filter(g => g.name.toLowerCase().includes(q.toLowerCase()) || g.phone.includes(q));
-  const sent = guests.filter(g => g.sent_at).length;
-
   return (
-    <>
-      <section className="adm-stats">
-        <div><b>{guests.length}</b>Total tamu</div>
-        <div><b>{sent}</b>Sudah dikirim</div>
-        <div><b>{guests.length - sent}</b>Belum dikirim</div>
-        <div><b>{guests.filter(g => !g.phone).length}</b>Tanpa nomor</div>
-      </section>
-
-      <details className="adm-box" open={!guests.length}>
-        <summary>Tambah tamu</summary>
-        <label htmlFor="g-add">Satu tamu per baris. Opsional nomor WA: <code>Keluarga Bapak Slamet | 0812xxxx</code></label>
-        <textarea id="g-add" rows={5} value={text} onChange={e => setText(e.target.value)} placeholder={'Hasan dan Pasangan | 081234567890\nRekan Kantor'} />
-        <div className="adm-row">
-          <button className="adm-btn" disabled={busy || !text.trim()} onClick={() => { save(fromText(text)); setText(''); }}>Simpan</button>
-          {canPick && <button className="adm-ghost" disabled={busy} onClick={pick}>Pilih dari Kontak HP</button>}
-          <button className="adm-ghost" disabled={busy} onClick={() => file.current.click()}>Import Excel / CSV / vCard</button>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild><Button><Plus /> Tambah tamu</Button></DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Tambah tamu</DialogTitle>
+          <DialogDescription>Satu tamu per baris, nomor WA opsional: <code className="text-foreground">Keluarga Pak Slamet | 0812…</code></DialogDescription>
+        </DialogHeader>
+        <Textarea rows={6} value={text} onChange={e => setText(e.target.value)} placeholder={'Hasan dan Pasangan | 081234567890\nRekan Kantor'} />
+        <div className="grid gap-2 sm:grid-cols-2">
+          {canPick && <Button variant="outline" disabled={busy} onClick={pick}><Contact /> Pilih dari kontak HP</Button>}
+          <Button variant="outline" disabled={busy} onClick={() => file.current.click()} className={canPick ? '' : 'sm:col-span-2'}><FileSpreadsheet /> Import Excel / CSV / vCard</Button>
           <input ref={file} type="file" accept=".xlsx,.xls,.csv,.vcf" hidden onChange={onFile} />
         </div>
-        <p className="adm-hint">Excel: kolom nama &amp; nomor WA, urutan bebas. iPhone: bagikan kontak sebagai .vcf lalu import.</p>
-      </details>
-      {(busy || msg) && <p className="adm-hint" role="status">{busy ? 'Menyimpan…' : msg}</p>}
+        <p className="text-muted-foreground text-xs">Excel: kolom nama &amp; nomor WA, urutan bebas. iPhone: bagikan kontak sebagai .vcf lalu import.</p>
+        <DialogFooter>
+          <Button disabled={busy || !text.trim()} onClick={() => save(fromText(text))}>{busy && <Spinner />} Simpan</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-      <details className="adm-box">
-        <summary>Teks pesan WhatsApp</summary>
-        <label htmlFor="g-tpl"><code>{'{nama}'}</code> dan <code>{'{link}'}</code> diganti otomatis</label>
-        <textarea id="g-tpl" rows={10} value={tpl} onChange={e => { setTpl(e.target.value); store.set('tpl', e.target.value); }} />
-      </details>
+function TemplateDialog({ tpl, setTpl }) {
+  const update = v => { setTpl(v); store.set('tpl', v); };
+  return (
+    <Dialog>
+      <DialogTrigger asChild><Button variant="outline"><MessageSquareText /> Teks pesan</Button></DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Teks pesan WhatsApp</DialogTitle>
+          <DialogDescription><code className="text-foreground">{'{nama}'}</code> dan <code className="text-foreground">{'{link}'}</code> diganti otomatis. Tersimpan di perangkat ini.</DialogDescription>
+        </DialogHeader>
+        <Textarea rows={14} value={tpl} onChange={e => update(e.target.value)} />
+        <DialogFooter>
+          <Button variant="outline" onClick={() => update(DEFAULT_TPL)}>Kembalikan bawaan</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-      {guests.length > 0 && <input className="adm-search" type="search" placeholder="Cari nama / nomor" value={q} onChange={e => setQ(e.target.value)} />}
+function DeleteGuest({ guest, onDelete }) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild><Button variant="ghost" size="icon" aria-label={`Hapus ${guest.name}`} className="text-muted-foreground"><Trash2 /></Button></AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Hapus {guest.name}?</AlertDialogTitle>
+          <AlertDialogDescription>Tamu ini dihapus dari daftar. Ucapan yang sudah dikirimnya tetap ada.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={() => onDelete(guest)}>Hapus</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
-      {guests.length === 0 ? <p className="adm-empty">Belum ada tamu untuk undangan ini.</p> : (
-        <ul className="adm-list">
-          {shown.map(g => (
-            <li key={g.id} className="adm-guest">
-              <div className="adm-who">
-                <b>{g.name}</b>
-                <span className="adm-sub">{g.phone ? `+${g.phone}` : 'tanpa nomor'}{g.sent_at ? ` · terkirim ${new Date(g.sent_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'short', timeStyle: 'short' })}` : ''}</span>
+export default function Guests({ theme, guests: saved }) {
+  // Show changes at once; the server catches up in the background and revalidates.
+  const [guests, apply] = useOptimistic(saved, (list, a) =>
+    a.del ? list.filter(g => g.id !== a.id) : list.map(g => (g.id === a.id ? { ...g, sent_at: Date.now() } : g)));
+  const remove = g => startTransition(async () => { apply({ del: true, id: g.id }); toast(`${g.name} dihapus`); await deleteGuest(g.id); });
+  const sendMark = g => startTransition(async () => { apply({ id: g.id }); await markSent(g.id); });
+  const [tpl, setTpl] = useState(DEFAULT_TPL);
+  const [q, setQ] = useState('');
+  const [filter, setFilter] = useState('semua');
+  const [origin, setOrigin] = useState('');
+  const [copied, setCopied] = useState(null);
+
+  useEffect(() => {
+    setTpl(store.get('tpl') || DEFAULT_TPL);
+    setOrigin(location.origin);
+  }, []);
+
+  const linkFor = name => `${origin}/${theme}/?to=${encodeURIComponent(name).replace(/%20/g, '+')}`;
+  const messageFor = name => tpl.replaceAll('{nama}', name).replaceAll('{link}', linkFor(name));
+
+  const shown = useMemo(() => guests.filter(g =>
+    (filter === 'semua' || (filter === 'terkirim') === !!g.sent_at) &&
+    (g.name.toLowerCase().includes(q.toLowerCase()) || g.phone.includes(q))
+  ), [guests, q, filter]);
+  const sent = guests.filter(g => g.sent_at).length;
+
+  const copy = async g => {
+    await navigator.clipboard.writeText(messageFor(g.name));
+    setCopied(g.id);
+    toast.success('Pesan disalin', { description: g.name });
+    setTimeout(() => setCopied(null), 1500);
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl font-semibold">Tamu</h1>
+          <p className="text-muted-foreground text-sm">{guests.length} tamu · {sent} terkirim · link memakai template <span className="text-foreground font-medium">{theme}</span></p>
+        </div>
+        <div className="flex gap-2">
+          <TemplateDialog tpl={tpl} setTpl={setTpl} />
+          <AddGuests />
+        </div>
+      </div>
+
+      {guests.length === 0 ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon"><Contact /></EmptyMedia>
+            <EmptyTitle>Belum ada tamu</EmptyTitle>
+            <EmptyDescription>Tambahkan manual, dari kontak HP, atau import file Excel.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <Card className="py-0">
+          <CardContent className="p-0">
+            <div className="flex flex-col gap-3 border-b p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative sm:w-72">
+                <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                <Input className="pl-8" type="search" placeholder="Cari nama / nomor" value={q} onChange={e => setQ(e.target.value)} />
               </div>
-              <button className="adm-ghost" onClick={async e => {
-                await navigator.clipboard.writeText(messageFor(g.name));
-                e.target.textContent = 'Tersalin';
-              }}>Salin</button>
-              <a className={`adm-wa${g.sent_at ? ' adm-sent' : ''}`} target="_blank" rel="noopener"
-                href={`https://wa.me/${g.phone}?text=${encodeURIComponent(messageFor(g.name))}`}
-                onClick={() => markSent(g.id)}>{g.sent_at ? 'Kirim lagi' : 'Kirim WA'}</a>
-              <details className="adm-del">
-                <summary aria-label={`Hapus ${g.name}`}>✕</summary>
-                <button onClick={() => deleteGuest(g.id)}>Hapus tamu ini</button>
-              </details>
-            </li>
-          ))}
-        </ul>
+              <Tabs value={filter} onValueChange={setFilter}>
+                <TabsList>
+                  <TabsTrigger value="semua">Semua</TabsTrigger>
+                  <TabsTrigger value="belum">Belum</TabsTrigger>
+                  <TabsTrigger value="terkirim">Terkirim</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-4">Nama</TableHead>
+                  <TableHead className="hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="pr-4 text-right">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {shown.map(g => (
+                  <TableRow key={g.id}>
+                    <TableCell className="max-w-0 pl-4 whitespace-normal">
+                      <p className="font-medium break-words">{g.name}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {g.phone ? `+${g.phone}` : 'tanpa nomor'}
+                        <span className="sm:hidden">{g.sent_at ? ` · terkirim ${fmt(g.sent_at)}` : ''}</span>
+                      </p>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {g.sent_at
+                        ? <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Terkirim {fmt(g.sent_at)}</Badge>
+                        : <Badge variant="outline">Belum dikirim</Badge>}
+                    </TableCell>
+                    <TableCell className="pr-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" aria-label="Salin pesan" onClick={() => copy(g)}>{copied === g.id ? <Check /> : <Copy />}</Button>
+                        <Button size="sm" aria-label="Kirim WhatsApp" asChild variant={g.sent_at ? 'outline' : 'default'} className={g.sent_at ? '' : 'bg-[#1fa855] text-white hover:bg-[#1a9049]'}>
+                          <a target="_blank" rel="noopener" href={`https://wa.me/${g.phone}?text=${encodeURIComponent(messageFor(g.name))}`} onClick={() => sendMark(g)}>
+                            <Send /> <span className="hidden sm:inline">{g.sent_at ? 'Kirim lagi' : 'Kirim WA'}</span>
+                          </a>
+                        </Button>
+                        <DeleteGuest guest={g} onDelete={remove} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {shown.length === 0 && (
+                  <TableRow><TableCell colSpan={3} className="text-muted-foreground py-10 text-center">Tidak ada tamu yang cocok.</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
-    </>
+    </div>
   );
 }

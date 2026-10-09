@@ -17,11 +17,11 @@ export async function logout() {
   redirect('/admin/');
 }
 
-export async function deleteWish(form) {
+export async function deleteWish(id) {
   if (!(await isAdmin())) redirect('/admin/');
   await ready;
-  await db.execute({ sql: 'DELETE FROM wishes WHERE id = ?', args: [Number(form.get('id'))] });
-  redirect('/admin/?view=ucapan');
+  await db.execute({ sql: 'DELETE FROM wishes WHERE id = ?', args: [Number(id)] });
+  revalidatePath('/admin/', 'layout');
 }
 
 // 0812… / +62812… / 62812… / 812… (Excel drops the leading 0) → 62812…
@@ -43,31 +43,29 @@ export async function addGuests(list) {
     sql: 'INSERT OR IGNORE INTO guests (inv, name, phone, created_at) VALUES (?, ?, ?, ?)',
     args: [INV, g.name, g.phone, Date.now()],
   })), 'write');
-  revalidatePath('/admin/');
+  revalidatePath('/admin/', 'layout');
   return { added: res.reduce((n, r) => n + r.rowsAffected, 0) };
 }
 
-// Template undangan yang dipakai (dipilih di atas halaman admin); link WA mengikuti pilihan ini.
-export async function setTheme(form) {
+// Template undangan yang dipakai; "/" dan link WA mengikuti pilihan ini.
+export async function setTheme(theme) {
   if (!(await isAdmin())) redirect('/admin/');
-  const theme = String(form.get('theme'));
-  if (THEMES.includes(theme)) {
-    await ready;
-    await db.execute({ sql: "INSERT INTO settings (key, value) VALUES ('theme', ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value", args: [theme] });
-  }
-  redirect(`/admin/?view=${form.get('view') === 'ucapan' ? 'ucapan' : 'tamu'}`);
+  if (!THEMES.includes(theme)) return;
+  await ready;
+  await db.execute({ sql: "INSERT INTO settings (key, value) VALUES ('theme', ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value", args: [theme] });
+  revalidatePath('/admin/', 'layout');
 }
 
 export async function markSent(id) {
   if (!(await isAdmin())) redirect('/admin/');
   await ready;
   await db.execute({ sql: 'UPDATE guests SET sent_at = ? WHERE id = ?', args: [Date.now(), Number(id)] });
-  revalidatePath('/admin/');
+  revalidatePath('/admin/', 'layout');
 }
 
 export async function deleteGuest(id) {
   if (!(await isAdmin())) redirect('/admin/');
   await ready;
   await db.execute({ sql: 'DELETE FROM guests WHERE id = ?', args: [Number(id)] });
-  revalidatePath('/admin/');
+  revalidatePath('/admin/', 'layout');
 }

@@ -74,31 +74,52 @@ $$('[data-copy]').forEach(btn =>
 
 // Reveal on scroll. Started only after the cover opens (nothing animates unseen behind it);
 // elements entering together are staggered.
+// [data-rv-parent]: the element starts fully outside its clipped section (e.g. slides in from 100%),
+// so it can never intersect by itself — watch its parent instead.
+const watched = new Map();
 const io = new IntersectionObserver(
   es => es.filter(e => e.isIntersecting).forEach((e, i) => {
-    e.target.style.transitionDelay = `${i * 0.12}s`;
-    e.target.classList.add('in');
+    for (const el of watched.get(e.target)) {
+      el.style.transitionDelay = `${i * 0.12}s`;
+      el.classList.add('in');
+    }
     io.unobserve(e.target);
   }),
   { threshold: 0.15, rootMargin: '0px 0px -6% 0px' }
 );
-function startReveal() { $$('.rv').forEach(el => io.observe(el)); }
-$$('.rv.stagger').forEach(el => [...el.children].forEach((c, i) => c.style.setProperty('--i', i)));
+// Two-way: .zoom/.muncul* toggle .active on every entry/exit (threshold 0.3), like the reference site.
+const io2 = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('active', e.isIntersecting)), { threshold: 0.3 });
+function startReveal() {
+  $$('.rv').forEach(el => {
+    const t = 'rvParent' in el.dataset ? el.parentElement : el;
+    watched.set(t, [...(watched.get(t) || []), el]);
+    io.observe(t);
+  });
+  $$('.zoom,.muncul,.muncul-kiri,.muncul-kanan').forEach(el => io2.observe(el));
+}
 
 // Scroll-linked motion. [data-px="0.3"]: ornament drifts against the scroll (parallax depth);
 // [data-zoom]: background settles from 1.12 to 1 as its section reaches the middle of the screen.
+// [data-bg="0.3"]: the element's own (repeating) background scrolls at 70% speed behind its content.
+// [data-lag="0.5"]: while its section scrolls off the top, the element trails at half speed (hero video).
 // Uses the separate translate/scale properties so it stacks with keyframes (sway, floaty) on transform.
-const movers = matchMedia('(prefers-reduced-motion: reduce)').matches ? [] : $$('[data-px],[data-zoom]');
+const movers = matchMedia('(prefers-reduced-motion: reduce)').matches ? [] : $$('[data-px],[data-zoom],[data-bg],[data-lag]');
 let queued = false;
 const move = () => {
   queued = false;
   const vh = innerHeight;
   for (const el of movers) {
+    if (el.dataset.bg) {
+      const o = el.getBoundingClientRect(); // background moves, the box doesn't: no feedback
+      if (o.bottom > 0 && o.top < vh) el.style.backgroundPositionY = `${(-o.top * el.dataset.bg).toFixed(1)}px`;
+      continue;
+    }
     const r = el.parentElement.getBoundingClientRect(); // parent: not moved by us, so no feedback
     if (r.bottom < 0 || r.top > vh) continue;
     const c = (r.top + r.height / 2 - vh / 2) / vh; // 0 when centered, ± as it scrolls away
     if (el.dataset.px) el.style.translate = `0 ${(c * el.dataset.px * 120).toFixed(1)}px`;
     if ('zoom' in el.dataset) el.style.scale = (1 + Math.min(Math.max(c, 0), 1) * 0.12).toFixed(3);
+    if (el.dataset.lag) el.style.translate = `0 ${(Math.max(0, -r.top) * el.dataset.lag).toFixed(1)}px`;
   }
 };
 if (movers.length) {
