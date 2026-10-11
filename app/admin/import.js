@@ -17,3 +17,13 @@ export const fromVcf = text => text.replace(/\r?\n[ \t]/g, '').split(/BEGIN:VCAR
 
 export const loadXlsx = () => window.XLSX || new Promise((ok, fail) => document.head.appendChild(Object.assign(
   document.createElement('script'), { src: 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', onload: () => ok(window.XLSX), onerror: fail })));
+
+// Blank guest list for "Import Excel". Numbers are written as text so the leading 0 survives.
+export const downloadTemplate = async () => {
+  const X = await loadXlsx();
+  const ws = X.utils.aoa_to_sheet([['Nama', 'Nomor WA'], ['Bapak Slamet & Keluarga', '081234567890'], ['Rekan Kantor', '']]);
+  ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  const wb = X.utils.book_new();
+  X.utils.book_append_sheet(wb, ws, 'Tamu');
+  X.writeFile(wb, 'template-tamu.xlsx');
+};

@@ -1,6 +1,6 @@
 'use client';
 import { startTransition, useEffect, useMemo, useOptimistic, useRef, useState, useTransition } from 'react';
-import { Plus, Search, Send, Copy, Trash2, Contact, FileSpreadsheet, MessageSquareText, Check } from 'lucide-react';
+import { Plus, Search, Send, Copy, Trash2, Contact, FileSpreadsheet, MessageSquareText, Check, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
 import { addGuests, markSent, deleteGuest } from './actions';
-import { fromText, fromRows, fromVcf, loadXlsx } from './import';
+import { fromText, fromRows, fromVcf, loadXlsx, downloadTemplate } from './import';
 
 const DEFAULT_TPL = `Kepada Yth.
 Bapak/Ibu/Saudara/i
@@ -88,7 +88,9 @@ function AddGuests() {
           <Button variant="outline" disabled={busy} onClick={() => file.current.click()} className={canPick ? '' : 'sm:col-span-2'}><FileSpreadsheet /> Import Excel / CSV / vCard</Button>
           <input ref={file} type="file" accept=".xlsx,.xls,.csv,.vcf" hidden onChange={onFile} />
         </div>
-        <p className="text-muted-foreground text-xs">Excel: kolom nama &amp; nomor WA, urutan bebas. iPhone: bagikan kontak sebagai .vcf lalu import.</p>
+        <p className="text-muted-foreground text-xs">
+          Excel: <button type="button" className="text-foreground inline-flex items-center gap-1 font-medium underline underline-offset-2" onClick={downloadTemplate}><Download className="size-3" /> download template</button>, isi kolom Nama &amp; Nomor WA (ganti baris contoh), lalu import. iPhone: bagikan kontak sebagai .vcf lalu import.
+        </p>
         <DialogFooter>
           <Button disabled={busy || !text.trim()} onClick={() => save(fromText(text))}>{busy && <Spinner />} Simpan</Button>
         </DialogFooter>

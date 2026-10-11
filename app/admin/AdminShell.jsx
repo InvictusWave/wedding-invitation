@@ -5,6 +5,7 @@ import { MacOSSidebar } from '@/components/watermelon/macos-sidebar';
 import { Button } from '@/components/ui/button';
 import { logout } from './actions';
 import { go, isActive } from './nav';
+import Tour, { TourButton } from './Tour';
 
 const NAV = [
   { label: 'Ringkasan', href: '/admin/', icon: LayoutDashboard },
@@ -30,11 +31,12 @@ const Logout = ({ compact }) => (
 export default function AdminShell({ children }) {
   const path = usePathname();
   return (
-    <MacOSSidebar items={NAV} header={<Brand />} footer={<Logout />}>
+    <MacOSSidebar items={NAV} header={<Brand />} footer={<><TourButton /><Logout /></>}>
+      <Tour />
       {/* HP: bar atas + navigasi bawah yang mudah dijangkau jempol */}
       <header className="bg-background/80 sticky top-0 z-20 flex items-center justify-between border-b px-4 py-3 backdrop-blur md:hidden">
         <Brand />
-        <Logout compact />
+        <div className="flex"><TourButton compact /><Logout compact /></div>
       </header>
       <main className="mx-auto w-full max-w-5xl p-4 pb-24 md:p-8">{children}</main>
       <nav className="bg-background/90 fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t backdrop-blur md:hidden">
