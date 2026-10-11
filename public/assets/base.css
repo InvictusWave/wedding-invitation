@@ -53,6 +53,8 @@ section:where(.inv>*+section){padding-top:calc(72px + var(--seam))}
 .gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px}
 .gallery img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;cursor:zoom-in}
 .gallery img:first-child{grid-column:span 2;aspect-ratio:3/2}
+/* foto terakhir yang sendirian di barisnya (foto pertama span 2) → tengah */
+.gallery img:last-child:nth-child(even){grid-column:1/-1;width:calc(50% - 4px);justify-self:center}
 dialog.lightbox{margin:auto;border:0;background:transparent;max-width:94vw}
 dialog.lightbox::backdrop{background:rgba(0,0,0,.85)}
 dialog.lightbox img{max-height:88vh;border-radius:10px}

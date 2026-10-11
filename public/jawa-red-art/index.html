@@ -100,6 +100,7 @@ body.opened .hero>:nth-child(5){animation-delay:4.3s}
 #gallery h2{font-size:36px}
 #gallery .gallery{grid-template-columns:1fr 1fr;gap:6px}
 #gallery .gallery img,#gallery .gallery img:first-child{grid-column:auto;aspect-ratio:2/3;border-radius:6px;border:3px solid #fff}
+#gallery .gallery img:last-child:nth-child(odd){grid-column:1/-1;width:calc(50% - 3px);justify-self:center}
 .gallery img.ph{object-fit:contain;padding:30%;background:#f6eaea}
 
 #countdown{background:url(img/BG-1-red-tema-art-jawa-1.webp) center/cover;padding:116px 20px 40px;position:relative}
@@ -250,9 +251,11 @@ footer{background:#6e2731;color:#fff;text-align:center;font:500 11px 'Poppins',s
       <img src="../assets/foto/galeri-1.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
       <img src="../assets/foto/galeri-2.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
       <img src="../assets/foto/galeri-3.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+      <!-- disembunyikan:
       <img src="../assets/foto/galeri-4.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
       <img src="../assets/foto/galeri-5.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
       <img src="../assets/foto/galeri-6.webp" data-ph="img/wayang-red-1.webp" alt="Galeri" loading="lazy">
+      -->
     </div>
   </section>
 
