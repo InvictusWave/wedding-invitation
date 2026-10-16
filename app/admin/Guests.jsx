@@ -1,6 +1,6 @@
 'use client';
 import { startTransition, useEffect, useMemo, useOptimistic, useRef, useState, useTransition } from 'react';
-import { Plus, Search, Send, Copy, Trash2, Contact, FileSpreadsheet, MessageSquareText, Check, Download } from 'lucide-react';
+import { Plus, Search, Send, Copy, Trash2, Contact, FileSpreadsheet, MessageSquareText, Check, Download, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
-import { addGuests, markSent, deleteGuest } from './actions';
+import { addGuests, markSent, deleteGuest, updateGuestSchedule } from './actions';
 import { fromText, fromRows, fromVcf, loadXlsx, downloadTemplate } from './import';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 
 const DEFAULT_TPL = `Kepada Yth.
 Bapak/Ibu/Saudara/i
@@ -41,12 +42,13 @@ function AddGuests() {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [canPick, setCanPick] = useState(false);
+  const [schedule, setSchedule] = useState('semua');
   const [busy, start] = useTransition();
   const file = useRef(null);
   useEffect(() => setCanPick('contacts' in navigator && 'select' in navigator.contacts), []); // Chrome Android only
 
   const save = list => start(async () => {
-    const { added } = await addGuests(list);
+    const { added } = await addGuests(list.map(g => ({ ...g, schedule })));
     const skipped = list.length - added;
     toast.success(`${added} tamu ditambahkan`, { description: skipped ? `${skipped} dilewati (kosong atau sudah ada)` : undefined });
     setText('');
@@ -83,6 +85,14 @@ function AddGuests() {
           <DialogDescription>Satu tamu per baris, nomor WA opsional: <code className="text-foreground">Keluarga Pak Slamet | 0812…</code></DialogDescription>
         </DialogHeader>
         <Textarea rows={6} value={text} onChange={e => setText(e.target.value)} placeholder={'Hasan dan Pasangan | 081234567890\nRekan Kantor'} />
+        <label className="grid gap-1 text-sm font-medium">Jadwal yang ditampilkan
+          <NativeSelect value={schedule} onChange={e => setSchedule(e.target.value)} className="w-full">
+            <NativeSelectOption value="semua">Semua acara</NativeSelectOption>
+            <NativeSelectOption value="wanita">Mempelai wanita (Sabtu)</NativeSelectOption>
+            <NativeSelectOption value="pria">Mempelai pria / ngunduh mantu (Minggu)</NativeSelectOption>
+            <NativeSelectOption value="banyu-mili">Pria / Ngunduh Mantu Banyu Mili (Sabtu)</NativeSelectOption>
+          </NativeSelect>
+        </label>
         <div className="grid gap-2 sm:grid-cols-2">
           {canPick && <Button variant="outline" disabled={busy} onClick={pick}><Contact /> Pilih dari kontak HP</Button>}
           <Button variant="outline" disabled={busy} onClick={() => file.current.click()} className={canPick ? '' : 'sm:col-span-2'}><FileSpreadsheet /> Import Excel / CSV / vCard</Button>
@@ -139,7 +149,7 @@ function DeleteGuest({ guest, onDelete }) {
 export default function Guests({ theme, guests: saved }) {
   // Show changes at once; the server catches up in the background and revalidates.
   const [guests, apply] = useOptimistic(saved, (list, a) =>
-    a.del ? list.filter(g => g.id !== a.id) : list.map(g => (g.id === a.id ? { ...g, sent_at: Date.now() } : g)));
+    a.del ? list.filter(g => g.id !== a.id) : list.map(g => (g.id === a.id ? { ...g, ...(a.schedule ? { schedule: a.schedule } : { sent_at: Date.now() }) } : g)));
   const remove = g => startTransition(async () => { apply({ del: true, id: g.id }); toast(`${g.name} dihapus`); await deleteGuest(g.id); });
   const sendMark = g => startTransition(async () => { apply({ id: g.id }); await markSent(g.id); });
   const [tpl, setTpl] = useState(DEFAULT_TPL);
@@ -153,8 +163,8 @@ export default function Guests({ theme, guests: saved }) {
     setOrigin(location.origin);
   }, []);
 
-  const linkFor = name => `${origin}/${theme}/?to=${encodeURIComponent(name).replace(/%20/g, '+')}`;
-  const messageFor = name => tpl.replaceAll('{nama}', name).replaceAll('{link}', linkFor(name));
+  const linkFor = (name, schedule) => `${origin}/${theme}/?to=${encodeURIComponent(name).replace(/%20/g, '+')}${schedule && schedule !== 'semua' ? `&jadwal=${schedule}` : ''}`;
+  const messageFor = g => tpl.replaceAll('{nama}', g.name).replaceAll('{link}', linkFor(g.name, g.schedule));
 
   const shown = useMemo(() => guests.filter(g =>
     (filter === 'semua' || (filter === 'terkirim') === !!g.sent_at) &&
@@ -163,7 +173,7 @@ export default function Guests({ theme, guests: saved }) {
   const sent = guests.filter(g => g.sent_at).length;
 
   const copy = async g => {
-    await navigator.clipboard.writeText(messageFor(g.name));
+    await navigator.clipboard.writeText(messageFor(g));
     setCopied(g.id);
     toast.success('Pesan disalin', { description: g.name });
     setTimeout(() => setCopied(null), 1500);
@@ -206,12 +216,13 @@ export default function Guests({ theme, guests: saved }) {
                 </TabsList>
               </Tabs>
             </div>
-            <Table>
+            <Table className="min-w-[900px] table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="pl-4">Nama</TableHead>
-                  <TableHead className="hidden sm:table-cell">Status</TableHead>
-                  <TableHead className="pr-4 text-right">Aksi</TableHead>
+                  <TableHead className="w-[33%] pl-4">Nama</TableHead>
+                  <TableHead className="hidden w-[22%] sm:table-cell">Status</TableHead>
+                  <TableHead className="w-[25%]">Jadwal</TableHead>
+                  <TableHead className="w-[20%] pr-4 text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -220,7 +231,7 @@ export default function Guests({ theme, guests: saved }) {
                     <TableCell className="max-w-0 pl-4 whitespace-normal">
                       <p className="font-medium break-words">{g.name}</p>
                       <p className="text-muted-foreground text-xs">
-                        {g.phone ? `+${g.phone}` : 'tanpa nomor'}
+                        {g.phone ? `+${g.phone}` : 'tanpa nomor'} · {g.schedule === 'wanita' ? 'mempelai wanita' : g.schedule === 'pria' ? 'mempelai pria' : g.schedule === 'banyu-mili' ? 'Banyu Mili' : 'semua acara'}
                         <span className="sm:hidden">{g.sent_at ? ` · terkirim ${fmt(g.sent_at)}` : ''}</span>
                       </p>
                     </TableCell>
@@ -229,21 +240,32 @@ export default function Guests({ theme, guests: saved }) {
                         ? <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Terkirim {fmt(g.sent_at)}</Badge>
                         : <Badge variant="outline">Belum dikirim</Badge>}
                     </TableCell>
+                    <TableCell>
+                      <NativeSelect value={g.schedule || 'semua'} onChange={e => startTransition(async () => { apply({ id: g.id, schedule: e.target.value }); await updateGuestSchedule(g.id, e.target.value); })} className="w-full max-w-40">
+                        <NativeSelectOption value="semua">Semua</NativeSelectOption>
+                        <NativeSelectOption value="wanita">Wanita</NativeSelectOption>
+                        <NativeSelectOption value="pria">Pria / Minggu</NativeSelectOption>
+                        <NativeSelectOption value="banyu-mili">Banyu Mili / Sabtu</NativeSelectOption>
+                      </NativeSelect>
+                    </TableCell>
                     <TableCell className="pr-4">
                       <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" asChild aria-label={`Buka undangan ${g.name}`} title="Buka undangan">
+                          <a target="_blank" rel="noopener" href={linkFor(g.name, g.schedule)}><ExternalLink /></a>
+                        </Button>
                         <Button variant="ghost" size="icon" aria-label="Salin pesan" onClick={() => copy(g)}>{copied === g.id ? <Check /> : <Copy />}</Button>
-                        <Button size="sm" aria-label="Kirim WhatsApp" asChild variant={g.sent_at ? 'outline' : 'default'} className={g.sent_at ? '' : 'bg-[#1fa855] text-white hover:bg-[#1a9049]'}>
-                          <a target="_blank" rel="noopener" href={`https://wa.me/${g.phone}?text=${encodeURIComponent(messageFor(g.name))}`} onClick={() => sendMark(g)}>
+                        {g.phone ? <Button size="sm" aria-label="Kirim WhatsApp" asChild variant={g.sent_at ? 'outline' : 'default'} className={g.sent_at ? '' : 'bg-[#1fa855] text-white hover:bg-[#1a9049]'}>
+                          <a target="_blank" rel="noopener" href={`https://wa.me/${g.phone}?text=${encodeURIComponent(messageFor(g))}`} onClick={() => sendMark(g)}>
                             <Send /> <span className="hidden sm:inline">{g.sent_at ? 'Kirim lagi' : 'Kirim WA'}</span>
                           </a>
-                        </Button>
+                        </Button> : <span className="text-muted-foreground px-2 text-xs">Tanpa WA</span>}
                         <DeleteGuest guest={g} onDelete={remove} />
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
                 {shown.length === 0 && (
-                  <TableRow><TableCell colSpan={3} className="text-muted-foreground py-10 text-center">Tidak ada tamu yang cocok.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="text-muted-foreground py-10 text-center">Tidak ada tamu yang cocok.</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

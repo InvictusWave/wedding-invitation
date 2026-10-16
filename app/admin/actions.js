@@ -35,16 +35,24 @@ export async function addGuests(list) {
   if (!(await isAdmin())) redirect('/admin/');
   if (!Array.isArray(list)) return { added: 0 };
   const rows = list.slice(0, 2000)
-    .map(g => ({ name: String(g?.name || '').trim().slice(0, 80), phone: waNumber(g?.phone) }))
+    .map(g => ({ name: String(g?.name || '').trim().slice(0, 80), phone: waNumber(g?.phone), schedule: ['semua', 'wanita', 'pria', 'banyu-mili'].includes(g?.schedule) ? g.schedule : 'semua' }))
     .filter(g => g.name);
   if (!rows.length) return { added: 0 };
   await ready;
   const res = await db.batch(rows.map(g => ({
-    sql: 'INSERT OR IGNORE INTO guests (inv, name, phone, created_at) VALUES (?, ?, ?, ?)',
-    args: [INV, g.name, g.phone, Date.now()],
+    sql: 'INSERT OR IGNORE INTO guests (inv, name, phone, schedule, created_at) VALUES (?, ?, ?, ?, ?)',
+    args: [INV, g.name, g.phone, g.schedule, Date.now()],
   })), 'write');
   revalidatePath('/admin/', 'layout');
   return { added: res.reduce((n, r) => n + r.rowsAffected, 0) };
+}
+
+export async function updateGuestSchedule(id, schedule) {
+  if (!(await isAdmin())) redirect('/admin/');
+  if (!['semua', 'wanita', 'pria', 'banyu-mili'].includes(schedule)) return;
+  await ready;
+  await db.execute({ sql: 'UPDATE guests SET schedule = ? WHERE id = ?', args: [schedule, Number(id)] });
+  revalidatePath('/admin/', 'layout');
 }
 
 // Template undangan yang dipakai; "/" dan link WA mengikuti pilihan ini.

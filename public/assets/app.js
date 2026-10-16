@@ -9,6 +9,13 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const to = new URLSearchParams(location.search).get('to');
 if (to) $$('[data-guest]').forEach(el => (el.textContent = to));
 
+// Guest-specific schedule: no parameter keeps the invitation unchanged (all events).
+const jadwal = new URLSearchParams(location.search).get('jadwal') || 'semua';
+$$('[data-jadwal]').forEach(el => {
+  const show = jadwal === 'semua' ? el.dataset.jadwal !== 'banyu-mili' : el.dataset.jadwal === jadwal;
+  if (!show) el.hidden = true;
+});
+
 // Photo not uploaded yet → show the theme placeholder (data-ph)
 $$('img[data-ph]').forEach(img => {
   const ph = () => { img.src = img.dataset.ph; img.classList.add('ph'); };

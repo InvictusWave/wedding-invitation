@@ -3,11 +3,14 @@ import { db, ready, THEMES } from '../lib/db';
 
 export const dynamic = 'force-dynamic';
 
-// "/" → the template chosen in /admin/ (keeps ?to=Nama so a short link still greets the guest).
+// "/" → the template chosen in /admin/ (keeps guest name and schedule on short links).
 export default async function Home({ searchParams }) {
   await ready;
   const { rows } = await db.execute("SELECT value FROM settings WHERE key = 'theme'");
   const theme = THEMES.includes(rows[0]?.value) ? rows[0].value : THEMES[0];
-  const to = (await searchParams).to;
-  redirect(`/${theme}/${to ? `?to=${encodeURIComponent(to)}` : ''}`);
+  const { to, jadwal } = await searchParams;
+  const query = new URLSearchParams();
+  if (to) query.set('to', to);
+  if (['wanita', 'pria', 'banyu-mili'].includes(jadwal)) query.set('jadwal', jadwal);
+  redirect(`/${theme}/${query.size ? `?${query}` : ''}`);
 }

@@ -38,7 +38,7 @@ export default function AdminShell({ children }) {
         <Brand />
         <div className="flex"><TourButton compact /><Logout compact /></div>
       </header>
-      <main className="mx-auto w-full max-w-5xl p-4 pb-24 md:p-8">{children}</main>
+      <main className="mx-auto w-full max-w-7xl p-4 pb-24 md:p-8">{children}</main>
       <nav className="bg-background/90 fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t backdrop-blur md:hidden">
         {NAV.map(({ label, href, icon: Icon }) => {
           const active = isActive(path, href);
