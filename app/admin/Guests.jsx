@@ -47,7 +47,7 @@ const scheduleTime = schedule => schedule === 'pria'
     ? 'Sabtu, 31 Oktober 2026 · Akad 08.00 WIB · Banyu Mili 13.00–21.00 WIB'
     : schedule === 'wanita'
       ? 'Sabtu, 31 Oktober 2026 · Akad 08.00 WIB · Resepsi 10.00 WIB'
-      : 'Sabtu, 31 Oktober 2026 · Akad 08.00 WIB; Minggu, 1 November 2026 · 09.00 WIB';
+      : 'Sabtu, 31 Oktober 2026 · Akad 08.00 WIB · Resepsi 10.00 WIB; Minggu, 1 November 2026 · 09.00 WIB';
 
 function AddGuests() {
   const [open, setOpen] = useState(false);
@@ -98,7 +98,7 @@ function AddGuests() {
         <Textarea rows={6} value={text} onChange={e => setText(e.target.value)} placeholder={'Hasan dan Pasangan | 081234567890\nRekan Kantor'} />
         <label className="grid gap-1 text-sm font-medium">Jadwal yang ditampilkan
           <NativeSelect value={schedule} onChange={e => setSchedule(e.target.value)} className="w-full">
-            <NativeSelectOption value="semua">Semua jadwal (Akad + Minggu)</NativeSelectOption>
+            <NativeSelectOption value="semua">Semua jadwal</NativeSelectOption>
             <NativeSelectOption value="wanita">Mempelai wanita (Sabtu)</NativeSelectOption>
             <NativeSelectOption value="pria">Mempelai pria / ngunduh mantu (Minggu)</NativeSelectOption>
             <NativeSelectOption value="sabtu">Sabtu (Akad + Banyu Mili)</NativeSelectOption>
@@ -259,7 +259,7 @@ export default function Guests({ theme, guests: saved }) {
                     </TableCell>
                     <TableCell>
                       <NativeSelect value={g.schedule || 'semua'} onChange={e => startTransition(async () => { apply({ id: g.id, schedule: e.target.value }); await updateGuestSchedule(g.id, e.target.value); })} className="w-full max-w-40">
-                        <NativeSelectOption value="semua">Semua (Akad + Minggu)</NativeSelectOption>
+                        <NativeSelectOption value="semua">Semua jadwal</NativeSelectOption>
                         <NativeSelectOption value="wanita">Wanita</NativeSelectOption>
                         <NativeSelectOption value="pria">Pria / Minggu</NativeSelectOption>
                         <NativeSelectOption value="sabtu">Sabtu / Akad + Banyu</NativeSelectOption>

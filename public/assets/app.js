@@ -14,8 +14,8 @@ const jadwal = new URLSearchParams(location.search).get('jadwal') || 'semua';
 $$('[data-jadwal]').forEach(el => {
   const saturday = jadwal === 'sabtu';
   const onlyBanyu = jadwal === 'banyu-mili';
-  if ((jadwal === 'semua' && !['sabtu', 'pria'].includes(el.dataset.jadwal)) || (jadwal === 'pria' && !['sabtu', 'pria'].includes(el.dataset.jadwal)) || ((saturday || onlyBanyu) && !['sabtu', 'banyu-mili'].includes(el.dataset.jadwal))) el.hidden = true;
-  const active = (jadwal === 'semua' && ['sabtu', 'pria'].includes(el.dataset.jadwal)) || (jadwal === 'wanita' && ['sabtu', 'wanita'].includes(el.dataset.jadwal)) || ((saturday || onlyBanyu) && ['sabtu', 'banyu-mili'].includes(el.dataset.jadwal)) || el.dataset.jadwal === jadwal;
+  if ((jadwal === 'semua' && el.dataset.jadwal === 'banyu-mili') || (jadwal === 'pria' && !['sabtu', 'pria'].includes(el.dataset.jadwal)) || ((saturday || onlyBanyu) && !['sabtu', 'banyu-mili'].includes(el.dataset.jadwal))) el.hidden = true;
+  const active = (jadwal === 'semua' && el.dataset.jadwal !== 'banyu-mili') || (jadwal === 'wanita' && ['sabtu', 'wanita'].includes(el.dataset.jadwal)) || ((saturday || onlyBanyu) && ['sabtu', 'banyu-mili'].includes(el.dataset.jadwal)) || el.dataset.jadwal === jadwal;
   if (!active) $$('a[href*="maps.google.com"],a[data-cal]', el).forEach(a => (a.hidden = true));
 });
 
