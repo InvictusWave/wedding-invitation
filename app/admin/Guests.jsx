@@ -1,6 +1,7 @@
 'use client';
 import { startTransition, useEffect, useMemo, useOptimistic, useRef, useState, useTransition } from 'react';
-import { Plus, Search, Send, Copy, Trash2, Contact, FileSpreadsheet, MessageSquareText, Check, Download, ExternalLink } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Plus, Search, Send, Copy, Trash2, Contact, FileSpreadsheet, MessageSquareText, Check, Download, ExternalLink, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
-import { addGuests, markSent, deleteGuest, updateGuestSchedule } from './actions';
+import { addGuests, markSent, deleteGuest, updateGuestSchedule, updateGuest } from './actions';
 import { fromText, fromRows, fromVcf, loadXlsx, downloadTemplate } from './import';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 
@@ -121,16 +122,27 @@ function AddGuests() {
   );
 }
 
-function TemplateDialog({ tpl, setTpl }) {
-  const update = v => { setTpl(v); store.set('tpl', v); };
+const TEMPLATE_SCHEDULES = ['semua', 'wanita', 'pria', 'sabtu', 'banyu-mili'];
+const templateName = schedule => schedule === 'pria' ? 'Mempelai pria / Minggu' : schedule === 'wanita' ? 'Mempelai wanita' : schedule === 'sabtu' ? 'Sabtu / Akad + Banyu' : schedule === 'banyu-mili' ? 'Banyu Mili' : 'Semua jadwal';
+
+function TemplateDialog({ templates, setTemplates }) {
+  const [target, setTarget] = useState('semua');
+  const tpl = templates[target] || DEFAULT_TPL;
+  const update = v => {
+    setTemplates(prev => ({ ...prev, [target]: v }));
+    store.set(`tpl:${target}`, v);
+  };
   return (
     <Dialog>
       <DialogTrigger asChild><Button variant="outline"><MessageSquareText /> Teks pesan</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Teks pesan WhatsApp</DialogTitle>
-          <DialogDescription><code className="text-foreground">{'{nama}'}</code>, <code className="text-foreground">{'{link}'}</code>, dan <code className="text-foreground">{'{jadwal}'}</code> diganti otomatis. Tersimpan di perangkat ini.</DialogDescription>
+          <DialogDescription><code className="text-foreground">{'{nama}'}</code>, <code className="text-foreground">{'{link}'}</code>, <code className="text-foreground">{'{jadwal}'}</code>, dan <code className="text-foreground">{'{waktu}'}</code> diganti otomatis. Tersimpan di perangkat ini.</DialogDescription>
         </DialogHeader>
+        <NativeSelect value={target} onChange={e => setTarget(e.target.value)} className="w-full">
+          {TEMPLATE_SCHEDULES.map(schedule => <NativeSelectOption key={schedule} value={schedule}>{templateName(schedule)}</NativeSelectOption>)}
+        </NativeSelect>
         <Textarea rows={14} value={tpl} onChange={e => update(e.target.value)} />
         <DialogFooter>
           <Button variant="outline" onClick={() => update(DEFAULT_TPL)}>Kembalikan bawaan</Button>
@@ -158,25 +170,64 @@ function DeleteGuest({ guest, onDelete }) {
   );
 }
 
+function EditGuest({ guest }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(guest.name);
+  const [phone, setPhone] = useState(guest.phone || '');
+  const [schedule, setSchedule] = useState(guest.schedule || 'semua');
+  const [busy, start] = useTransition();
+  const save = () => start(async () => {
+    const result = await updateGuest(guest.id, { name, phone, schedule });
+    if (result?.error) return toast.error(result.error);
+    toast.success('Data tamu diperbarui');
+    setOpen(false);
+    router.refresh();
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild><Button variant="ghost" size="icon" aria-label={`Edit ${guest.name}`} title="Edit tamu"><Pencil /></Button></DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Edit tamu</DialogTitle><DialogDescription>Perbarui nama, nomor WA, atau jadwal undangan.</DialogDescription></DialogHeader>
+        <div className="grid gap-3">
+          <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nama tamu" />
+          <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Nomor WA (opsional)" />
+          <NativeSelect value={schedule} onChange={e => setSchedule(e.target.value)} className="w-full">
+            <NativeSelectOption value="semua">Semua jadwal</NativeSelectOption>
+            <NativeSelectOption value="wanita">Mempelai wanita (Sabtu)</NativeSelectOption>
+            <NativeSelectOption value="pria">Mempelai pria (Minggu)</NativeSelectOption>
+            <NativeSelectOption value="sabtu">Sabtu (Akad + Banyu Mili)</NativeSelectOption>
+            <NativeSelectOption value="banyu-mili">Banyu Mili (Sabtu)</NativeSelectOption>
+          </NativeSelect>
+        </div>
+        <DialogFooter><Button disabled={busy || !name.trim()} onClick={save}>{busy && <Spinner />} Simpan</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Guests({ theme, guests: saved }) {
   // Show changes at once; the server catches up in the background and revalidates.
   const [guests, apply] = useOptimistic(saved, (list, a) =>
     a.del ? list.filter(g => g.id !== a.id) : list.map(g => (g.id === a.id ? { ...g, ...(a.schedule ? { schedule: a.schedule } : { sent_at: Date.now() }) } : g)));
   const remove = g => startTransition(async () => { apply({ del: true, id: g.id }); toast(`${g.name} dihapus`); await deleteGuest(g.id); });
   const sendMark = g => startTransition(async () => { apply({ id: g.id }); await markSent(g.id); });
-  const [tpl, setTpl] = useState(DEFAULT_TPL);
+  const [templates, setTemplates] = useState(() => Object.fromEntries(TEMPLATE_SCHEDULES.map(schedule => [schedule, DEFAULT_TPL])));
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState('semua');
+  const [scheduleFilter, setScheduleFilter] = useState('semua');
   const [origin, setOrigin] = useState('');
   const [copied, setCopied] = useState(null);
 
   useEffect(() => {
-    setTpl(store.get('tpl') || DEFAULT_TPL);
+    setTemplates(Object.fromEntries(TEMPLATE_SCHEDULES.map(schedule => [schedule, store.get(`tpl:${schedule}`) || store.get('tpl') || DEFAULT_TPL])));
     setOrigin(location.origin);
   }, []);
 
   const linkFor = (name, schedule) => `${origin}/${theme}/?to=${encodeURIComponent(name).replace(/%20/g, '+')}${schedule && schedule !== 'semua' ? `&jadwal=${schedule}` : ''}`;
   const messageFor = g => {
+    const tpl = templates[g.schedule || 'semua'] || DEFAULT_TPL;
     let text = tpl.replaceAll('{nama}', g.name).replaceAll('{link}', linkFor(g.name, g.schedule)).replaceAll('{jadwal}', scheduleLabel(g.schedule)).replaceAll('{waktu}', scheduleTime(g.schedule));
     if (!tpl.includes('{jadwal}')) text += `\n\nJadwal: ${scheduleLabel(g.schedule)}`;
     if (!tpl.includes('{waktu}')) text += `\nTanggal & waktu: ${scheduleTime(g.schedule)}`;
@@ -185,8 +236,9 @@ export default function Guests({ theme, guests: saved }) {
 
   const shown = useMemo(() => guests.filter(g =>
     (filter === 'semua' || (filter === 'terkirim') === !!g.sent_at) &&
+    (scheduleFilter === 'semua' || (g.schedule || 'semua') === scheduleFilter) &&
     (g.name.toLowerCase().includes(q.toLowerCase()) || g.phone.includes(q))
-  ), [guests, q, filter]);
+  ), [guests, q, filter, scheduleFilter]);
   const sent = guests.filter(g => g.sent_at).length;
 
   const copy = async g => {
@@ -204,7 +256,7 @@ export default function Guests({ theme, guests: saved }) {
           <p className="text-muted-foreground text-sm">{guests.length} tamu · {sent} terkirim · link memakai template <span className="text-foreground font-medium">{theme}</span></p>
         </div>
         <div className="flex gap-2">
-          <TemplateDialog tpl={tpl} setTpl={setTpl} />
+          <TemplateDialog templates={templates} setTemplates={setTemplates} />
           <AddGuests />
         </div>
       </div>
@@ -232,6 +284,13 @@ export default function Guests({ theme, guests: saved }) {
                   <TabsTrigger value="terkirim">Terkirim</TabsTrigger>
                 </TabsList>
               </Tabs>
+              <NativeSelect value={scheduleFilter} onChange={e => setScheduleFilter(e.target.value)}>
+                <NativeSelectOption value="semua">Semua jadwal</NativeSelectOption>
+                <NativeSelectOption value="wanita">Mempelai wanita</NativeSelectOption>
+                <NativeSelectOption value="pria">Mempelai pria / Minggu</NativeSelectOption>
+                <NativeSelectOption value="sabtu">Sabtu / Akad + Banyu</NativeSelectOption>
+                <NativeSelectOption value="banyu-mili">Banyu Mili</NativeSelectOption>
+              </NativeSelect>
             </div>
             <Table className="min-w-[900px] table-fixed">
               <TableHeader>
@@ -271,6 +330,7 @@ export default function Guests({ theme, guests: saved }) {
                         <Button variant="ghost" size="icon" asChild aria-label={`Buka undangan ${g.name}`} title="Buka undangan">
                           <a target="_blank" rel="noopener" href={linkFor(g.name, g.schedule)}><ExternalLink /></a>
                         </Button>
+                        <EditGuest guest={g} />
                         <Button variant="ghost" size="icon" aria-label="Salin pesan" onClick={() => copy(g)}>{copied === g.id ? <Check /> : <Copy />}</Button>
                         {g.phone ? <Button size="sm" aria-label="Kirim WhatsApp" asChild variant={g.sent_at ? 'outline' : 'default'} className={g.sent_at ? '' : 'bg-[#1fa855] text-white hover:bg-[#1a9049]'}>
                           <a target="_blank" rel="noopener" href={`https://wa.me/${g.phone}?text=${encodeURIComponent(messageFor(g))}`} onClick={() => sendMark(g)}>

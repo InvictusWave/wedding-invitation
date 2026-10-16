@@ -55,6 +55,22 @@ export async function updateGuestSchedule(id, schedule) {
   revalidatePath('/admin/', 'layout');
 }
 
+export async function updateGuest(id, guest) {
+  if (!(await isAdmin())) redirect('/admin/');
+  const name = String(guest?.name || '').trim().slice(0, 80);
+  const schedule = ['semua', 'wanita', 'pria', 'sabtu', 'banyu-mili'].includes(guest?.schedule) ? guest.schedule : 'semua';
+  if (!name) return { error: 'Nama wajib diisi' };
+  await ready;
+  try {
+    await db.execute({ sql: 'UPDATE guests SET name = ?, phone = ?, schedule = ? WHERE id = ?', args: [name, waNumber(guest?.phone), schedule, Number(id)] });
+  } catch (error) {
+    if (/unique/i.test(String(error))) return { error: 'Nama tamu sudah ada' };
+    throw error;
+  }
+  revalidatePath('/admin/', 'layout');
+  return { ok: true };
+}
+
 // Template undangan yang dipakai; "/" dan link WA mengikuti pilihan ini.
 export async function setTheme(theme) {
   if (!(await isAdmin())) redirect('/admin/');
