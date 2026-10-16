@@ -26,6 +26,9 @@ Tanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i un
 Berikut link undangan kami untuk info lengkap acara:
 {link}
 
+Jadwal: {jadwal}
+Tanggal & waktu: {waktu}
+
 Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
 
 Terima kasih.`;
@@ -37,6 +40,14 @@ const store = {
 };
 
 const fmt = t => new Date(t).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'short', timeStyle: 'short' });
+const scheduleLabel = schedule => schedule === 'sabtu' || schedule === 'banyu-mili' ? 'Sabtu' : schedule === 'wanita' ? 'Acara mempelai wanita (Sabtu)' : schedule === 'pria' ? 'Minggu' : 'Semua jadwal';
+const scheduleTime = schedule => schedule === 'pria'
+  ? 'Minggu, 1 November 2026 · 09.00 WIB'
+  : schedule === 'sabtu' || schedule === 'banyu-mili'
+    ? 'Sabtu, 31 Oktober 2026 · Akad 08.00 WIB · Banyu Mili 13.00–21.00 WIB'
+    : schedule === 'wanita'
+      ? 'Sabtu, 31 Oktober 2026 · Akad 08.00 WIB · Resepsi 10.00 WIB'
+      : 'Sabtu, 31 Oktober 2026 · Akad 08.00 WIB; Minggu, 1 November 2026 · 09.00 WIB';
 
 function AddGuests() {
   const [open, setOpen] = useState(false);
@@ -87,9 +98,10 @@ function AddGuests() {
         <Textarea rows={6} value={text} onChange={e => setText(e.target.value)} placeholder={'Hasan dan Pasangan | 081234567890\nRekan Kantor'} />
         <label className="grid gap-1 text-sm font-medium">Jadwal yang ditampilkan
           <NativeSelect value={schedule} onChange={e => setSchedule(e.target.value)} className="w-full">
-            <NativeSelectOption value="semua">Semua acara</NativeSelectOption>
+            <NativeSelectOption value="semua">Semua jadwal (Akad + Minggu)</NativeSelectOption>
             <NativeSelectOption value="wanita">Mempelai wanita (Sabtu)</NativeSelectOption>
             <NativeSelectOption value="pria">Mempelai pria / ngunduh mantu (Minggu)</NativeSelectOption>
+            <NativeSelectOption value="sabtu">Sabtu (Akad + Banyu Mili)</NativeSelectOption>
             <NativeSelectOption value="banyu-mili">Pria / Ngunduh Mantu Banyu Mili (Sabtu)</NativeSelectOption>
           </NativeSelect>
         </label>
@@ -117,7 +129,7 @@ function TemplateDialog({ tpl, setTpl }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Teks pesan WhatsApp</DialogTitle>
-          <DialogDescription><code className="text-foreground">{'{nama}'}</code> dan <code className="text-foreground">{'{link}'}</code> diganti otomatis. Tersimpan di perangkat ini.</DialogDescription>
+          <DialogDescription><code className="text-foreground">{'{nama}'}</code>, <code className="text-foreground">{'{link}'}</code>, dan <code className="text-foreground">{'{jadwal}'}</code> diganti otomatis. Tersimpan di perangkat ini.</DialogDescription>
         </DialogHeader>
         <Textarea rows={14} value={tpl} onChange={e => update(e.target.value)} />
         <DialogFooter>
@@ -164,7 +176,12 @@ export default function Guests({ theme, guests: saved }) {
   }, []);
 
   const linkFor = (name, schedule) => `${origin}/${theme}/?to=${encodeURIComponent(name).replace(/%20/g, '+')}${schedule && schedule !== 'semua' ? `&jadwal=${schedule}` : ''}`;
-  const messageFor = g => tpl.replaceAll('{nama}', g.name).replaceAll('{link}', linkFor(g.name, g.schedule));
+  const messageFor = g => {
+    let text = tpl.replaceAll('{nama}', g.name).replaceAll('{link}', linkFor(g.name, g.schedule)).replaceAll('{jadwal}', scheduleLabel(g.schedule)).replaceAll('{waktu}', scheduleTime(g.schedule));
+    if (!tpl.includes('{jadwal}')) text += `\n\nJadwal: ${scheduleLabel(g.schedule)}`;
+    if (!tpl.includes('{waktu}')) text += `\nTanggal & waktu: ${scheduleTime(g.schedule)}`;
+    return text;
+  };
 
   const shown = useMemo(() => guests.filter(g =>
     (filter === 'semua' || (filter === 'terkirim') === !!g.sent_at) &&
@@ -231,7 +248,7 @@ export default function Guests({ theme, guests: saved }) {
                     <TableCell className="max-w-0 pl-4 whitespace-normal">
                       <p className="font-medium break-words">{g.name}</p>
                       <p className="text-muted-foreground text-xs">
-                        {g.phone ? `+${g.phone}` : 'tanpa nomor'} · {g.schedule === 'wanita' ? 'mempelai wanita' : g.schedule === 'pria' ? 'mempelai pria' : g.schedule === 'banyu-mili' ? 'Banyu Mili' : 'semua acara'}
+                        {g.phone ? `+${g.phone}` : 'tanpa nomor'} · {g.schedule === 'wanita' ? 'mempelai wanita' : g.schedule === 'pria' ? 'mempelai pria' : g.schedule === 'banyu-mili' ? 'Banyu Mili' : 'semua jadwal'}
                         <span className="sm:hidden">{g.sent_at ? ` · terkirim ${fmt(g.sent_at)}` : ''}</span>
                       </p>
                     </TableCell>
@@ -242,9 +259,10 @@ export default function Guests({ theme, guests: saved }) {
                     </TableCell>
                     <TableCell>
                       <NativeSelect value={g.schedule || 'semua'} onChange={e => startTransition(async () => { apply({ id: g.id, schedule: e.target.value }); await updateGuestSchedule(g.id, e.target.value); })} className="w-full max-w-40">
-                        <NativeSelectOption value="semua">Semua</NativeSelectOption>
+                        <NativeSelectOption value="semua">Semua (Akad + Minggu)</NativeSelectOption>
                         <NativeSelectOption value="wanita">Wanita</NativeSelectOption>
                         <NativeSelectOption value="pria">Pria / Minggu</NativeSelectOption>
+                        <NativeSelectOption value="sabtu">Sabtu / Akad + Banyu</NativeSelectOption>
                         <NativeSelectOption value="banyu-mili">Banyu Mili / Sabtu</NativeSelectOption>
                       </NativeSelect>
                     </TableCell>

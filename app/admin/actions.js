@@ -35,7 +35,7 @@ export async function addGuests(list) {
   if (!(await isAdmin())) redirect('/admin/');
   if (!Array.isArray(list)) return { added: 0 };
   const rows = list.slice(0, 2000)
-    .map(g => ({ name: String(g?.name || '').trim().slice(0, 80), phone: waNumber(g?.phone), schedule: ['semua', 'wanita', 'pria', 'banyu-mili'].includes(g?.schedule) ? g.schedule : 'semua' }))
+    .map(g => ({ name: String(g?.name || '').trim().slice(0, 80), phone: waNumber(g?.phone), schedule: ['semua', 'wanita', 'pria', 'sabtu', 'banyu-mili'].includes(g?.schedule) ? g.schedule : 'semua' }))
     .filter(g => g.name);
   if (!rows.length) return { added: 0 };
   await ready;
@@ -49,7 +49,7 @@ export async function addGuests(list) {
 
 export async function updateGuestSchedule(id, schedule) {
   if (!(await isAdmin())) redirect('/admin/');
-  if (!['semua', 'wanita', 'pria', 'banyu-mili'].includes(schedule)) return;
+  if (!['semua', 'wanita', 'pria', 'sabtu', 'banyu-mili'].includes(schedule)) return;
   await ready;
   await db.execute({ sql: 'UPDATE guests SET schedule = ? WHERE id = ?', args: [schedule, Number(id)] });
   revalidatePath('/admin/', 'layout');

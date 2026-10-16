@@ -11,6 +11,6 @@ export default async function Home({ searchParams }) {
   const { to, jadwal } = await searchParams;
   const query = new URLSearchParams();
   if (to) query.set('to', to);
-  if (['wanita', 'pria', 'banyu-mili'].includes(jadwal)) query.set('jadwal', jadwal);
+  if (['wanita', 'pria', 'sabtu', 'banyu-mili'].includes(jadwal)) query.set('jadwal', jadwal);
   redirect(`/${theme}/${query.size ? `?${query}` : ''}`);
 }

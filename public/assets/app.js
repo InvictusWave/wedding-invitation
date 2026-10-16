@@ -9,11 +9,14 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const to = new URLSearchParams(location.search).get('to');
 if (to) $$('[data-guest]').forEach(el => (el.textContent = to));
 
-// Guest-specific schedule: no parameter keeps the invitation unchanged (all events).
+// Guest-specific schedule: keep event details visible, but limit map/calendar actions.
 const jadwal = new URLSearchParams(location.search).get('jadwal') || 'semua';
 $$('[data-jadwal]').forEach(el => {
-  const show = jadwal === 'semua' ? el.dataset.jadwal !== 'banyu-mili' : el.dataset.jadwal === jadwal;
-  if (!show) el.hidden = true;
+  const saturday = jadwal === 'sabtu';
+  const onlyBanyu = jadwal === 'banyu-mili';
+  if ((jadwal === 'semua' && !['sabtu', 'pria'].includes(el.dataset.jadwal)) || (jadwal === 'pria' && !['sabtu', 'pria'].includes(el.dataset.jadwal)) || ((saturday || onlyBanyu) && !['sabtu', 'banyu-mili'].includes(el.dataset.jadwal))) el.hidden = true;
+  const active = (jadwal === 'semua' && ['sabtu', 'pria'].includes(el.dataset.jadwal)) || (jadwal === 'wanita' && ['sabtu', 'wanita'].includes(el.dataset.jadwal)) || ((saturday || onlyBanyu) && ['sabtu', 'banyu-mili'].includes(el.dataset.jadwal)) || el.dataset.jadwal === jadwal;
+  if (!active) $$('a[href*="maps.google.com"],a[data-cal]', el).forEach(a => (a.hidden = true));
 });
 
 // Photo not uploaded yet → show the theme placeholder (data-ph)
